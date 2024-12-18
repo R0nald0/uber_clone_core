@@ -1,39 +1,22 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## Uber Clone Core
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+![Badge em Desenvolvimento](http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=GREEN&style=for-the-badge)
+![Badge em Dart](http://img.shields.io/static/v1?label=LENGUAGE&message=%20DART&color=BLUEN&style=for-the-badge)
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+### Descrição
+<p>
+    Pakcge criado para permitir um unico acesso a regra de negocio e dados de aplicaçoes para micro front-ends,este é 0 core para uber_clone apps, com camada de lógica de negócios contendo classes de serviços, repositórios,models e camada de dados com acesso a banco de dados. 
+</p>
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+ ### Tecnologias utilizadas
+ ---
+ * Firebase
+ * Firebase Authenticator - para persistir dados do usuario(Passageiros/Motoristas),viagens
+ * Google maps para exibição de locais no map,geolocator para geolocalização
+ * Injeção de dependencia e gerenciamento de rotas com FlutterGetIt
+ * Persistência de dados localmente com shared_preferences e local Storage
+ * exibição de logs  Com o packege log
 
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
-```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+![Firebase](https://img.shields.io/badge/firebase-a08021?style=for-the-badge&logo=firebase&logoColor=ffcd34)
+![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)

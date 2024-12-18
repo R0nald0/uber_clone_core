@@ -1,0 +1,4 @@
+enum TipoViagem {
+  uberX,
+  uberMoto,
+}

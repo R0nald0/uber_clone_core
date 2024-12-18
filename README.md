@@ -5,7 +5,7 @@
 
 ### Descrição
 <p>
-    Pakcge criado para permitir um unico acesso a regra de negocio e dados de aplicaçoes para micro front-ends,este é 0 core para uber_clone apps, com camada de lógica de negócios contendo classes de serviços, repositórios,models e camada de dados com acesso a banco de dados. 
+    Pacote criado para centralizar o acesso às regras de negócio e aos dados de aplicações para micro front-ends. Este é o core dos aplicativos Uber Clone, contendo a camada de lógica de negócios com classes de serviços, repositórios, models, e uma camada de dados responsável pelo acesso ao banco de dados
 </p>
 
  ### Tecnologias utilizadas

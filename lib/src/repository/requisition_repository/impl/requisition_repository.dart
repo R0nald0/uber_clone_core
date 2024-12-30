@@ -1,39 +1,42 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
-class RequisitionRepository implements IRequisitionRepository {
-  final _fireStoreDatabase = FirebaseFirestore.instance;
+class RequisitionRepository implements IRequestRepository {
+  final FirebaseFirestore _fireStoreDatabase ;
   final LocalStorage _localStorage;
   final IAppUberLog _logger;
 
   RequisitionRepository(
-      {required IAppUberLog logger, required LocalStorage localStorage})
-      : _logger = logger,
+      {
+       required FirebaseFirestore firestore,required IAppUberLog logger, required LocalStorage localStorage})
+      : _fireStoreDatabase =firestore
+      ,_logger = logger,
         _localStorage = localStorage;
 
   @override
-  Future<Requisicao> verfyActivatedRequisition(String idUser) async {
+  Future<Requisicao> verfyActivatedRequest(String idUser) async {
     try {
-      final requisicao = await _readPrefenceData(
-          UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE);
-
-      if (requisicao == null) {
-        final requestActved = await findActvitesTripsById(idUser);
-        final isSuccess = await saveRequisitionOnPreference(requestActved);
-        if (!isSuccess) {
-          const message = 'Erro ao buscar requisçao ativa';
-          _logger.erro(message);
-          throw RequisicaoException(message: message);
+    
+        final requisicao = await _readPrefenceData(
+           UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE);
+          
+       if (requisicao == null) {
+        final requestActved = await findActvitesRequestById(idUser);
+        final isSuccess = await _saveRequisitionOnPreference(requestActved);
+        if (!isSuccess ) {
+          throw RequisicaoException(message:'Erro ao salvar requisçao ativa');
         }
         return requestActved;
-      }
+       }
 
-      return requisicao;
+         return requisicao;
+      
     } on RequisicaoException catch (e, s) {
-      const message = 'Nenhuma requisição encontrado';
+      const message = 'Nenhuma requisição encontrado com este id';
       _logger.erro(message, e, s);
       throw RequisicaoException(message: message);
     }
@@ -42,6 +45,7 @@ class RequisitionRepository implements IRequisitionRepository {
 
   Future<Requisicao?> _readPrefenceData(String keyPreference) async {
     final requisicao = await _localStorage.read<String>(keyPreference);
+
     if (requisicao == null) {
       return null;
     }
@@ -49,18 +53,17 @@ class RequisitionRepository implements IRequisitionRepository {
     return Requisicao.fromJson(requisicao);
   }
 
-  @override
-  Future<bool> createActiveRequisition(Requisicao requisition) async {
+  Future<bool> _createActiveRequest(Requisicao requisition) async {
     try {
-      await _fireStoreDatabase
+      final docRef =  _fireStoreDatabase
           .collection(
               UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-          .doc(requisition.passageiro.idUsuario)
-          .set(requisition.dadosPassageiroToMap());
+          .doc(requisition.id);
+           
+          await docRef.set(requisition.dadosPassageiroToMap());
 
-      bool? saved = await saveRequisitionOnPreference(requisition);
-
-      return saved;
+      return await _saveRequisitionOnPreference(requisition);
+      
     } on FirebaseException catch (e, s) {
       const message = 'Erro ao criar viagem';
       _logger.erro(message, e, s);
@@ -68,16 +71,22 @@ class RequisitionRepository implements IRequisitionRepository {
     }
   }
 
-  @override
-  Future<bool> saveRequisitionOnPreference(Requisicao requisition) async {
-    final saved = await _localStorage.write<String>(
-        UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE,
-        requisition.toJson());
-    return saved ?? false;
+  Future<bool> _saveRequisitionOnPreference(Requisicao requisition) async {
+    try {
+  final isSuccess = await _localStorage.write<String>(
+      UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE,
+      requisition.toJson());
+
+     return isSuccess != true ? false : true;
+} on  DatabaseException catch(e,s) {
+       const message = 'erro ao salvar dados da requisição';
+      _logger.erro(message,e,s);
+     throw RequisicaoException(message:message);
+ }
   }
 
   @override
-  Future<bool> createRequisition(Requisicao requisicao) async {
+  Future<bool> createRequest(Requisicao requisicao) async {
     try {
       final docRef = _fireStoreDatabase
           .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
@@ -85,8 +94,9 @@ class RequisitionRepository implements IRequisitionRepository {
 
       final requisitionWithId = requisicao.copyWith(id: () => docRef.id);
       await docRef.set(requisitionWithId.dadosPassageiroToMap());
-      final success = await createActiveRequisition(requisitionWithId);
-      return success;
+      
+      return await _createActiveRequest(requisitionWithId);
+      
     } on FirebaseException catch (e, s) {
       const message = 'Erro ao criar requisição';
       _logger.erro(message, e, s);
@@ -99,7 +109,7 @@ class RequisitionRepository implements IRequisitionRepository {
   }
 
   @override
-  Future<bool> cancelRequisition(Requisicao requisition) async {
+  Future<bool> cancelRequest(Requisicao requisition) async {
     final updateDataRequisition = await _fireStoreDatabase
         .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
         .doc(requisition.id)
@@ -136,7 +146,7 @@ class RequisitionRepository implements IRequisitionRepository {
   }
 
   @override
-  Stream<String> listenerRequisicao(String idRequisicao) async* {
+  Stream<String> listenerRequest(String idRequisicao) async* {
     yield* _fireStoreDatabase
         .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
         .doc(idRequisicao)
@@ -145,13 +155,11 @@ class RequisitionRepository implements IRequisitionRepository {
   }
 
   @override
-  Future<bool> updataDataRequisitionActiveted(
-      Requisicao request, Map<Object, Object?> dataToUpdate) async {
+  Future<bool> updataDataRequestActiveted( Requisicao request, Map<Object, Object?> dataToUpdate) async {
     try {
       final doc = _fireStoreDatabase
-          .collection(
-              UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-          .doc(request.passageiro.idUsuario);
+          .collection( UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
+          .doc(request.id);
 
       await doc.update(dataToUpdate);
 
@@ -160,6 +168,7 @@ class RequisitionRepository implements IRequisitionRepository {
       final saved = await _localStorage.write<String>(
           UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE,
           request.toJson());
+          
       return saved ?? false;
     } on RequisicaoException catch (e, s) {
       const message = 'erro ao atualizar a requisiçao ativa';
@@ -176,6 +185,8 @@ class RequisitionRepository implements IRequisitionRepository {
           .doc(request.id);
 
       await docReq.update(dataToUpdate);
+    
+
     } on Exception catch (e, s) {
       const message = 'erro ao atualizar a requisiçao';
       _logger.erro(message, e, s);
@@ -184,7 +195,7 @@ class RequisitionRepository implements IRequisitionRepository {
   }
 
   @override
-  Future<List<Requisicao>> findActvitesTrips() async {
+  Future<List<Requisicao>> findActvitesRequest() async {
     try {
       final querySnapshot = await _fireStoreDatabase
           .collection(
@@ -204,7 +215,7 @@ class RequisitionRepository implements IRequisitionRepository {
   }
 
   @override
-  Stream<List<Requisicao>> findAndObserverRequistions() async* {
+  Stream<List<Requisicao>> findAndObserverRequest() async* {
     try {
       final query = _fireStoreDatabase
           .collection(
@@ -232,11 +243,10 @@ class RequisitionRepository implements IRequisitionRepository {
   }
 
   @override
-  Future<Requisicao> findActvitesTripsById(String idUsuario) async {
+  Future<Requisicao> findActvitesRequestById(String idUsuario) async {
     try {
       final doc = _fireStoreDatabase
-          .collection(
-              UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
+          .collection( UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
           .doc(idUsuario);
 
       final documentSnapshot = await doc.get();
@@ -252,6 +262,7 @@ class RequisitionRepository implements IRequisitionRepository {
       }
 
       return Requisicao.fromMap(snapsShot);
+      
     } on RequisicaoException catch (e, s) {
       const message = 'erro ao encontrar requisiço ativa';
       _logger.erro(message, e, s);
@@ -260,12 +271,12 @@ class RequisitionRepository implements IRequisitionRepository {
   }
 
   @override
-  Stream<Requisicao> findAndObserverRequistionbyId(Requisicao request) async* {
+  Stream<Requisicao> findAndObserverRequestbyId(Requisicao request) async* {
     try {
       final docReq = _fireStoreDatabase
           .collection(
               UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-          .doc(request.passageiro.idUsuario);
+          .doc(request.id);
 
       final document = docReq.snapshots();
 

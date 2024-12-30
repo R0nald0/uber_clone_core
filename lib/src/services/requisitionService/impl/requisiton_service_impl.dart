@@ -1,42 +1,39 @@
 import 'package:uber_clone_core/src/core/exceptions/requisicao_exception.dart';
 import 'package:uber_clone_core/src/model/Requisicao.dart';
-import 'package:uber_clone_core/src/repository/location_repository/i_location_repository.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/src/services/requisitionService/I_requistion_service.dart';
 
 class RequisitonServiceImpl implements IRequistionService {
-  final IRequisitionRepository _requisitionRepository;
- final ILocationRepository _locationRepositoryImpl;
+  final IRequestRepository _requisitionRepository;
+
 
   RequisitonServiceImpl({
-    required IRequisitionRepository requisitonRepository,
-    required ILocationRepository locationRepositoryImpl,
+    required IRequestRepository requisitonRepository,
+       
     })
-      : _requisitionRepository = requisitonRepository,
-        _locationRepositoryImpl = locationRepositoryImpl
-      ;
+      : _requisitionRepository = requisitonRepository;
+      
 
   @override
   Future<bool> cancelRequisition(Requisicao requisition) =>
-      _requisitionRepository.cancelRequisition(requisition);
+      _requisitionRepository.cancelRequest(requisition);
 
-  @override
-  Future<bool> createActiveRequisition(Requisicao requisition) =>
-      _requisitionRepository.createActiveRequisition(requisition);
+
+ 
   @override
   Future<bool> createRequisition(Requisicao requisicao) =>
-      _requisitionRepository.createRequisition(requisicao);
+      _requisitionRepository.createRequest(requisicao);
   @override
   Future<List<Requisicao>> findActvitesTrips() =>
-      _requisitionRepository.findActvitesTrips();
+      _requisitionRepository.findActvitesRequest();
 
   @override
   Future<Requisicao> findActvitesTripsById(String idRequisicao) =>
-      _requisitionRepository.findActvitesTripsById(idRequisicao);
+      _requisitionRepository.findActvitesRequestById(idRequisicao);
 
   @override
   Stream<String> listenerRequisicao(String idRequisicao) =>
-      _requisitionRepository.listenerRequisicao(idRequisicao);
+      _requisitionRepository.listenerRequest(idRequisicao);
 
   @override
   Future<Requisicao> updataDataRequisition(Requisicao request,Map<Object,Object?> dataToUpdate) async {
@@ -46,27 +43,27 @@ class RequisitonServiceImpl implements IRequistionService {
       }
        
 
-      final isSuccess = await _requisitionRepository.updataDataRequisitionActiveted(request,dataToUpdate);
+      final isSuccess = await _requisitionRepository.updataDataRequestActiveted(request,dataToUpdate);
       if (!isSuccess) {
         throw RequisicaoException(message: 'Erro ao atualizar dados da viagem');
       }
       return await _requisitionRepository
-          .findActvitesTripsById(request.passageiro.idUsuario!);
+          .findActvitesRequestById(request.passageiro.idUsuario!);
     } on RequisicaoException {
       rethrow;
     }
   }
 
   @override
-  Future<Requisicao> verfyActivatedRequisition(String idUser) => _requisitionRepository.verfyActivatedRequisition(idUser);
+  Future<Requisicao> verfyActivatedRequisition(String idUser) => _requisitionRepository.verfyActivatedRequest(idUser);
 
   @override
   Stream<List<Requisicao>> findAndObserverTrips() =>
-      _requisitionRepository.findAndObserverRequistions();
+      _requisitionRepository.findAndObserverRequest();
 
   @override
   Future<bool> saveRequisitionOnPreference(Requisicao requisition) async {
-    final isSaved =  await _requisitionRepository.saveRequisitionOnPreference(requisition);
+    /* final isSaved =  await _requisitionRepository.saveRequisitionOnPreference(requisition);
     if ( isSaved == false) {
         if (requisition.passageiro.idUsuario == null) {
            return false;
@@ -74,15 +71,18 @@ class RequisitonServiceImpl implements IRequistionService {
        final request = await _requisitionRepository.findActvitesTripsById(requisition.passageiro.idUsuario!);
        return  await _requisitionRepository.saveRequisitionOnPreference(request);
     }
-    return isSaved;
+    return isSaved; */
+    return false;
   }
   
   
   
   @override
   Stream<Requisicao> updateDataTripOn(Requisicao request,Map<Object,Object?> dataToUpdate)  async*{
-
-    if (request.id == null || request.motorista?.idUsuario == null) {
+    
+     _requisitionRepository.findAndObserverRequestbyId(request);
+       
+    /* if (request.id == null || request.motorista?.idUsuario == null) {
        throw RequisicaoException(message: 'erro ao atualizar requisição');
     }
      //TODO Verificar a atualização em tempo real da requisição,
@@ -92,6 +92,6 @@ class RequisitonServiceImpl implements IRequistionService {
             updataDataRequisition(request,dataToUpdate); 
         });
         
-    yield* _requisitionRepository.findAndObserverRequistionbyId(request);     
+    yield* _requisitionRepository.findAndObserverRequistionbyId(request); */     
   }
 }

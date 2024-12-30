@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_getit/flutter_getit.dart';
 import 'package:uber_clone_core/src/core/local_storage/impl/local_storage_impl.dart';
 import 'package:uber_clone_core/src/core/logger/impl/app_uber_log_impl.dart';
@@ -23,13 +24,14 @@ class AplicationBinding extends ApplicationBindings {
         Bind.lazySingleton<DatabaseOffLine>((i) => DatabaseImpl()),
         Bind.lazySingleton<IAppUberLog>((i) => AppUberLogImpl()),
         Bind.lazySingleton<LocalStorage>((i) => LocalStorageImpl()),
+        Bind.lazySingleton((i) => FirebaseFirestore.instance),
       
-        Bind.lazySingleton<IRequisitionRepository>(
-            (i) => RequisitionRepository(logger: i(), localStorage: i())),
+        Bind.lazySingleton<IRequestRepository>(
+            (i) => RequisitionRepository(logger: i(), localStorage: i(), firestore: i())),
         Bind.lazySingleton<IAuthRepository>(
             (i) => AuthRepositoryImpl(database: i(), logger: i())),
         Bind.lazySingleton<IUserRepository>(
-            (i) => UserRepositoryImpl(localStoreage: i(), log: i())),
+            (i) => UserRepositoryImpl( database: i(), localStoreage: i(), log: i())),
         Bind.lazySingleton<ILocationRepository>(
             (i) => LocationRepositoryImpl(log: i())),
 
@@ -37,7 +39,7 @@ class AplicationBinding extends ApplicationBindings {
         Bind.lazySingleton<ITripSerivce>(
             (i) => TripService(locationRepositoryImpl: i())),
         Bind.lazySingleton<IRequistionService>((i) => RequisitonServiceImpl(
-            requisitonRepository: i(), locationRepositoryImpl: i())),
+            requisitonRepository: i())),
         Bind.lazySingleton<ILocationService>(
             (i) => LocationServiceImpl(locationRepositoryImpl: i(), log: i())),
         Bind.lazySingleton<UserService>(

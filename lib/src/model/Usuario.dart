@@ -12,6 +12,7 @@ class Usuario {
   final String senha;
   final double latitude;
   final double longitude;
+  final String? idRequisicaoAtiva; 
 
   Usuario({
     this.idUsuario,
@@ -21,6 +22,7 @@ class Usuario {
     required this.senha,
     required this.latitude,
     required this.longitude,
+    this.idRequisicaoAtiva
   });
 
 
@@ -33,10 +35,12 @@ class Usuario {
       'senha': senha,
       'latitude': latitude,
       'longitude': longitude,
+      'idRequisicaoAtiva': idRequisicaoAtiva ,
     };
   }
   
   factory Usuario.fromFirestore( DocumentSnapshot snapshot ){
+  //final user = snapshot.data as Usuario;
      return  Usuario(
         idUsuario: snapshot.get('idUsuario') ?? '',
         email: snapshot.get('email')?? '', 
@@ -44,7 +48,8 @@ class Usuario {
         tipoUsuario: snapshot.get('tipoUsuario') ?? '', 
         senha: '', 
         latitude: 0, 
-        longitude: 0
+        longitude: 0,
+        idRequisicaoAtiva: snapshot.get('idRequisicaoAtiva')
         );
   }
   
@@ -56,19 +61,8 @@ class Usuario {
   nome = '',
   senha = '',
   tipoUsuario = '',
+  idRequisicaoAtiva = '',
   super();
-
-  Map<String,dynamic> toMapUp(){
-    Map<String,dynamic> map={
-      'idUsuario' : idUsuario,
-      "nome" : nome,
-      "email":email,
-      "tipoUsuario":tipoUsuario,
-      "latitude"   : latitude,
-      "longitude" : longitude
-    };
-    return map;
-  }
 
   Usuario copyWith({
     ValueGetter<String?>? idUsuario,
@@ -78,6 +72,7 @@ class Usuario {
     String? senha,
     double? latitude,
     double? longitude,
+    String? idRequisicaoAtiva
   }) {
     return Usuario(
       idUsuario: idUsuario != null ? idUsuario() : this.idUsuario,
@@ -87,6 +82,7 @@ class Usuario {
       senha: senha ?? this.senha,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      idRequisicaoAtiva:  idRequisicaoAtiva ?? this.idRequisicaoAtiva
     );
   }
 
@@ -99,6 +95,7 @@ class Usuario {
       senha: map['senha'] ?? '',
       latitude: map['latitude']?.toDouble() ?? 0.0,
       longitude: map['longitude']?.toDouble() ?? 0.0,
+      idRequisicaoAtiva: map['idRequisicaoAtiva'] ?? ''
     );
   }
 

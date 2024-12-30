@@ -22,4 +22,7 @@ class UserServiceImpl implements UserService {
     String password, 
     String tipoUsuario) =>
       _userRepository.saveUserOnDatabaseOnline( name, idUsuario, email, password, tipoUsuario);
+      
+        @override
+        Future<bool> updateUser(Usuario usuario) => _userRepository.updateUser(usuario);
 }

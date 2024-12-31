@@ -185,7 +185,6 @@ class RequisitionRepository implements IRequestRepository {
           .doc(request.id);
 
       await docReq.update(dataToUpdate);
-    
 
     } on Exception catch (e, s) {
       const message = 'erro ao atualizar a requisiçao';

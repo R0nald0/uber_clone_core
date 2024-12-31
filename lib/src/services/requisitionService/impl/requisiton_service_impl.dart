@@ -42,13 +42,13 @@ class RequisitonServiceImpl implements IRequistionService {
         throw RequisicaoException(message: "erro ao atualizar requisição");
       }
        
-
       final isSuccess = await _requisitionRepository.updataDataRequestActiveted(request,dataToUpdate);
+     
       if (!isSuccess) {
         throw RequisicaoException(message: 'Erro ao atualizar dados da viagem');
       }
       return await _requisitionRepository
-          .findActvitesRequestById(request.passageiro.idUsuario!);
+          .findActvitesRequestById(request.id!);
     } on RequisicaoException {
       rethrow;
     }

@@ -27,6 +27,7 @@ export 'src/model/Marcador.dart';
 export 'src/model/Usuario.dart';
 export 'src/model/addres.dart';   
 export 'src/model/polyline_data.dart';
+export 'src/model/user_position.dart';
 
 export 'src/core/logger/i_app_uber_log.dart';
 export 'src/core/location/location_controller.dart';

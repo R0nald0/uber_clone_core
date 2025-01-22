@@ -39,7 +39,10 @@ class AplicationBinding extends ApplicationBindings {
         Bind.lazySingleton<ITripSerivce>(
             (i) => TripService(locationRepositoryImpl: i())),
         Bind.lazySingleton<IRequistionService>((i) => RequisitonServiceImpl(
-            requisitonRepository: i())),
+            requisitonRepository: i(),
+            authRepository: i(),
+            log: i(),
+            userRepository: i())),
         Bind.lazySingleton<ILocationService>(
             (i) => LocationServiceImpl(locationRepositoryImpl: i(), log: i())),
         Bind.lazySingleton<UserService>(

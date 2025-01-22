@@ -74,6 +74,59 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  void showTripDialogValues(String price,VoidCallback onPositiveButton){
+    
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (alertContext) {
+           final theme = Theme.of(alertContext);
+          return AlertDialog(
+            titlePadding: const EdgeInsets.all(16),
+
+            title:  Center(child: Text('Viagem Finalizada',
+             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold) ,
+            )) ,
+            content: RichText(
+              text:  TextSpan(
+                style: theme.textTheme.labelLarge,
+                text: 'Valor da viagem ',
+                children: [
+                   TextSpan(text: 'R\$ $price',style: theme.textTheme.bodyLarge
+                         ?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          ))
+                ] 
+              )
+              ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child:  Text('Tive um problema',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                     color: Colors.red.shade800,
+                     fontWeight: FontWeight.bold
+                  )
+                  )),
+              ElevatedButton(
+                onPressed: (){
+                  onPositiveButton();
+                }, 
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                overlayColor: Colors.white12
+              ),
+              child:const Text('Encerrar',
+              style: TextStyle(color: Colors.white),
+              ))
+            ],
+          );
+        });
+  }
 }
 
 

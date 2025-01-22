@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:uber_clone_core/src/model/user_position.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
 abstract interface class ILocationService {
@@ -11,4 +12,6 @@ abstract interface class ILocationService {
 
  Future<AssetMapBitmap> markerPositionIconCostomizer(
     String caminho, double devicePixelRatio,Size? sizeIcon); 
+
+ Stream<UserPosition> getUserRealTimeLocation();   
 }

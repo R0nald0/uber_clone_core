@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uber_clone_core/src/core/exceptions/addres_exception.dart';
 import 'package:uber_clone_core/src/core/logger/i_app_uber_log.dart';
 import 'package:uber_clone_core/src/model/addres.dart';
+import 'package:uber_clone_core/src/model/user_position.dart';
 import 'package:uber_clone_core/src/repository/location_repository/i_location_repository.dart';
 import 'package:uber_clone_core/src/services/location_service/i_location_service.dart';
 
@@ -52,7 +53,11 @@ class LocationServiceImpl implements ILocationService{
     ImageConfiguration configuration = ImageConfiguration(size: sizeIcon ?? const Size(23, 23) );
     final pathImage = caminho;
     final assetBitMap = BitmapDescriptor.asset(configuration, pathImage);
-
     return assetBitMap;
   }
+
+  @override
+  Stream<UserPosition> getUserRealTimeLocation() => _locationRepository.getUserRealTimeLocation();
+
+  
 }

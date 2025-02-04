@@ -19,6 +19,7 @@ import 'package:uber_clone_core/src/services/user_service/impl/user_service_impl
 import 'package:uber_clone_core/uber_clone_core.dart';
 
 class AplicationBinding extends ApplicationBindings {
+    
   @override
   List<Bind<Object>> bindings() => [
         Bind.lazySingleton<DatabaseOffLine>((i) => DatabaseImpl()),

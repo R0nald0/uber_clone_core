@@ -28,6 +28,9 @@ export 'src/model/Usuario.dart';
 export 'src/model/addres.dart';   
 export 'src/model/polyline_data.dart';
 export 'src/model/user_position.dart';
+export 'src/model/trip.dart';
+export 'src/model/tipo_viagem.dart';
+
 
 export 'src/core/logger/i_app_uber_log.dart';
 export 'src/core/location/location_controller.dart';
@@ -35,4 +38,7 @@ export 'src/core/location/location_controller.dart';
 export 'src/util/Status.dart';
 
 export 'src/uber_clone_core_config.dart';
+
+export 'src/core/offline_database/uber_clone_life_cycle.dart';
+
 

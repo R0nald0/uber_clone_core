@@ -217,12 +217,6 @@ void main() {
     
           expect(() async =>  await requisitionReposiory.delete(requisicao),throwsA(isA<RequestException>()));
           
-  
-           //  falta para fazer --- teste firebaseExceptions,disposer da lista de corridas ativas no app motorista
-           //  feito teste para delete requistiom e deleteAcvitedReuest
-           //  para commit realizado fluxo do app motorista até encerrear corrida
-
-
       });
 
        test('Given a requisition ,whem deleteAcvitedReuest is executed ,it should remove request on firebase and localStorage and return true',() async{

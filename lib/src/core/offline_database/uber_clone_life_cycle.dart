@@ -1,4 +1,4 @@
-//TODO mudar para view;
+
 
 import 'package:flutter/material.dart';
 import 'package:uber_clone_core/src/core/offline_database/sql_connection.dart';

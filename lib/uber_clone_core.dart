@@ -11,15 +11,13 @@ export 'src/core/exceptions/user_exception.dart';
 export 'src/core/widgets/uber_text_fields/uber_auto_completer_text_field.dart';
 export 'src/core/widgets/uber_text_fields/uber_text_field_widget.dart';
 
-export 'src/repository/addres_reposiory/address_repository_impl.dart';
-export 'src/repository/user_repository/i_user_repository.dart';
-
 
 export 'src/services/location_service/i_location_service.dart';
 export 'src/services/trip_service/i_trip_serivce.dart';
 export 'src/services/requisitionService/I_requistion_service.dart';
-export 'src/services/user_service/user_service.dart';
+export 'src/services/user_service/i_user_service.dart';
 export 'src/services/authservice/i_auth_service.dart';
+export 'src/services/adress_service/i_addres_service.dart';
 export 'src/services/mapsCameraService/maps_camera_service.dart';
 
 export 'src/model/Requisicao.dart';

@@ -106,12 +106,12 @@ void main() {
        when(() => mockDocument.id).thenReturn(requisicao.id!);
        when(() => mockDocument.set(any())).thenAnswer((_) async=> Future<void>.value());
       
-      final result =await  requisitionReposiory.createRequest(requisicao);
+      final result =await  requisitionReposiory.createRequestActive(requisicao);
       
-      expect(result , isTrue);
+      expect(result ,requisicao.id );
       verify(() => fireStoreMock.collection(any())).called(2);
       verify(() => mockCollection.doc(any())).called(2);
-      verify(() => mockDocument.id).called(1);
+      verify(() => mockDocument.id).called(2);
       verify(() => mockDocument.set(any())).called(2);
 
      });

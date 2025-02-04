@@ -10,6 +10,7 @@ import 'package:uber_clone_core/src/repository/location_repository/i_location_re
 import 'package:uber_clone_core/src/repository/location_repository/location_repository_impl.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/impl/requisition_repository.dart';
+import 'package:uber_clone_core/src/repository/user_repository/i_user_repository.dart';
 import 'package:uber_clone_core/src/repository/user_repository/impl/user_repository_impl.dart';
 import 'package:uber_clone_core/src/services/authservice/auth_service_impl.dart';
 import 'package:uber_clone_core/src/services/location_service/location_service_impl.dart';
@@ -32,7 +33,7 @@ class AplicationBinding extends ApplicationBindings {
         Bind.lazySingleton<IAuthRepository>(
             (i) => AuthRepositoryImpl(database: i(), logger: i())),
         Bind.lazySingleton<IUserRepository>(
-            (i) => UserRepositoryImpl( database: i(), localStoreage: i(), log: i())),
+            (i) => UserRepositoryImpl(database: i(), localStoreage:i(), log:i())),
         Bind.lazySingleton<ILocationRepository>(
             (i) => LocationRepositoryImpl(log: i())),
 
@@ -46,7 +47,7 @@ class AplicationBinding extends ApplicationBindings {
             userRepository: i())),
         Bind.lazySingleton<ILocationService>(
             (i) => LocationServiceImpl(locationRepositoryImpl: i(), log: i())),
-        Bind.lazySingleton<UserService>(
+        Bind.lazySingleton<IUserService>(
             (i) => UserServiceImpl(userRepository: i())),
         Bind.lazySingleton<IAuthService>((i) => AuthServiceImpl(
             localStorage: i(),

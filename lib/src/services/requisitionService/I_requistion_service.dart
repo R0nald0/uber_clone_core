@@ -6,7 +6,7 @@ abstract interface class IRequistionService {
 
    Future<List<Requisicao>> findActvitesTrips();
    Future<Requisicao> findActvitesTripsById(String idRequisicao);
-   Future<bool> createRequisition(Requisicao requisicao);
+   Future<String> createRequisition(Requisicao requisicao);
    Future<bool> cancelRequisition(Requisicao requisition);
    Stream<String> listenerRequisicao(String idRequisicao);
    Future<Requisicao> updataDataRequisition(Requisicao request,Map<Object,Object?> dataToUpdate);
@@ -14,7 +14,7 @@ abstract interface class IRequistionService {
    Stream<Requisicao> findAndObserverById(Requisicao request);
   Future<void> updateDataTripOn(Requisicao request);
   Future<void> delete(Requisicao request); 
-  Future<bool> deleteAcvitedReuest(Requisicao request);
+  Future<bool> deleteAcvitedRequest(Requisicao request);
    
 
 

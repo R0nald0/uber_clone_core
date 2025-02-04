@@ -28,8 +28,8 @@ class RequisitonServiceImpl implements IRequistionService {
       _requisitionRepository.cancelRequest(requisition);
 
   @override
-  Future<bool> createRequisition(Requisicao requisicao) =>
-      _requisitionRepository.createRequest(requisicao);
+  Future<String> createRequisition(Requisicao requisicao) =>
+      _requisitionRepository.createRequestActive(requisicao);
   @override
   Future<List<Requisicao>> findActvitesTrips() =>
       _requisitionRepository.findActvitesRequest();
@@ -96,7 +96,7 @@ class RequisitonServiceImpl implements IRequistionService {
       _requisitionRepository.delete(request);
 
   @override
-  Future<bool> deleteAcvitedReuest(Requisicao request) async {
+  Future<bool> deleteAcvitedRequest(Requisicao request) async {
     try {
       final isdeleted =
           await _requisitionRepository.deleteAcvitedRequest(request);

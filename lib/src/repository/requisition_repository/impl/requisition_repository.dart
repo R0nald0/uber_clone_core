@@ -51,11 +51,11 @@ class RequisitionRepository implements IRequestRepository {
     return Requisicao.fromJson(requisicao);
   }
 
-  Future<bool> _createActiveRequest(Requisicao requisition) async {
+  Future<bool> _saveOndRequestList(Requisicao requisition) async {
     try {
       final docRef = _fireStoreDatabase
           .collection(
-              UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
+              UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
           .doc(requisition.id);
 
       await docRef.set(requisition.dadosPassageiroToMap());
@@ -83,16 +83,21 @@ class RequisitionRepository implements IRequestRepository {
   }
 
   @override
-  Future<bool> createRequest(Requisicao requisicao) async {
+  Future<String> createRequestActive(Requisicao requisicao) async {
     try {
       final docRef = _fireStoreDatabase
-          .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
+          .collection(UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
           .doc();
 
       final requisitionWithId = requisicao.copyWith(id: () => docRef.id);
       await docRef.set(requisitionWithId.dadosPassageiroToMap());
+      final saved =  await _saveOndRequestList(requisitionWithId); 
+      if (!saved) {
+          deleteAcvitedRequest(requisicao);
+          throw RequestException(message: "Erro criar requisição");
+      }   
+      return docRef.id;
 
-      return await _createActiveRequest(requisitionWithId);
     } on FirebaseException catch (e, s) {
       const message = 'Erro ao criar requisição';
       _logger.erro(message, e, s);

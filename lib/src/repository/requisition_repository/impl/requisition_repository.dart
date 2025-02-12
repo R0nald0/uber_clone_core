@@ -94,7 +94,7 @@ class RequisitionRepository implements IRequestRepository {
       final saved =  await _saveOndRequestList(requisitionWithId); 
       if (!saved) {
           deleteAcvitedRequest(requisicao);
-          throw RequestException(message: "Erro criar requisição");
+          throw RequestException(message: "Erro salar requisição no banco");
       }   
       return docRef.id;
 
@@ -102,6 +102,10 @@ class RequisitionRepository implements IRequestRepository {
       const message = 'Erro ao criar requisição';
       _logger.erro(message, e, s);
       throw RequestException(message: message);
+    } on RequestException  catch(e,s){
+       const message = 'Erro ao criar requisição local storage';
+      _logger.erro(message, e, s);
+      throw RequestException(message: e.message);
     }
 
     //salvar dados da requisicao activa
@@ -128,7 +132,7 @@ class RequisitionRepository implements IRequestRepository {
     final docRefActive = _fireStoreDatabase
         .collection(
             UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-        .doc(requisition.passageiro.idUsuario);
+        .doc(requisition.id);
 
     await docRefActive.update({"status": Status.CANCELADA});
 

@@ -11,7 +11,8 @@ abstract interface class ILocationService {
       String tiuloLocal, double hue);
 
  Future<AssetMapBitmap> markerPositionIconCostomizer(
-    String caminho, double devicePixelRatio,Size? sizeIcon); 
+     String caminho, double devicePixelRatio,Size? sizeIcon
+    ); 
 
  Stream<UserPosition> getUserRealTimeLocation();   
 }

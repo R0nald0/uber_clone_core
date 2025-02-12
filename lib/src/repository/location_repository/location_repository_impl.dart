@@ -38,15 +38,14 @@ class LocationRepositoryImpl implements ILocationRepository {
   }
 
   @override
-  Future<List<Address>> findAddresByName(
-      String nameAddres, String apikey) async {
+  Future<List<Address>> findAddresByName(String nameAddres, String apikey) async {
     try {
-      final apiKey = dotenv.env[apikey];
-      if (apiKey == null) {
-        throw AddresException(message: 'erro ao buscar api key');
-      }
+      
+      if (apikey.isEmpty) {
+        throw AddresException(message: 'Api key não encotrado');
+      } 
 
-      final googlPlace = GooglePlaces(apiKey);
+      final googlPlace = GooglePlaces(apikey);
       final search = await googlPlace.search.getTextSearch(nameAddres);
 
       if (search?.status == "REQUEST_DENIED") {

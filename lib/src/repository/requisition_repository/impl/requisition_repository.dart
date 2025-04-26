@@ -29,16 +29,16 @@ class RequisitionRepository implements IRequestRepository {
         final requestActved = await findActvitesRequestById(idUser);
         final isSuccess = await _saveRequisitionOnPreference(requestActved);
         if (!isSuccess) {
-          throw RequestException(message: 'Erro ao salvar requisçao ativa');
+          throw RequestNoteFound();
         }
         return requestActved;
       }
 
       return requisicao;
-    } on RequestException catch (e, s) {
+    } on RequestNoteFound catch (e, s) {
       const message = 'Nenhuma requisição encontrado com este id';
       _logger.erro(message, e, s);
-      throw RequestException(message: message);
+      throw RequestNoteFound();
     }
   }
 

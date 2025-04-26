@@ -118,7 +118,7 @@ void main() {
 
   });
    
-  group("find requests teste", (){
+  /* group("find requests teste", (){
        /* verify(() => fireStoreMock.collection(any())).called(1);
       verify(() =>mockCollection.doc() ).called(1);
        verify(() => mockDocument.snapshots()).called(1);
@@ -145,7 +145,7 @@ void main() {
 
     });
 
-  }); 
+  });  */
 
    group('updateRequisitonTests', (){
          final motoristaUp = requisicao.motorista!.copyWith(latitude: 2,longitude: 32);

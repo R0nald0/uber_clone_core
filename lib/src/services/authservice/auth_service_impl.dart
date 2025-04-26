@@ -75,12 +75,12 @@ class AuthServiceImpl implements IAuthService {
   @override
   Future<bool> logout() async {
     try {
-      _authRepository.logout();
       final isRemoved =
           await _localStorage.remove(UberCloneConstants.KEY_PREFERENCE_USER);
       if (isRemoved == null || isRemoved == false) {
         throw UserException(message: 'Erro ao remover dados do usúario');
       }
+       _authRepository.logout();
       return isRemoved;
     } on UserException catch (e, s) {
       const message = 'Erro ao remover dados do usúario';

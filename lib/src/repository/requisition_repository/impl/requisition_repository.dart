@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uber_clone_core/src/core/exceptions/request_note_found.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
@@ -170,7 +171,7 @@ class RequisitionRepository implements IRequestRepository {
 
       await doc.update(dataToUpdate);
 
-      await updateRequisition(request, dataToUpdate);
+      await _updateRequisition(request, dataToUpdate);
 
       final saved = await _localStorage.write<String>(
           UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE,
@@ -200,7 +201,7 @@ class RequisitionRepository implements IRequestRepository {
     }
   }
 
-  Future<void> updateRequisition(
+  Future<void> _updateRequisition(
       Requisicao request, Map<Object, Object?> dataToUpdate) async {
     try {
       final docReq = _fireStoreDatabase
@@ -263,30 +264,29 @@ class RequisitionRepository implements IRequestRepository {
   }
 
   @override
-  Future<Requisicao> findActvitesRequestById(String idUsuario) async {
+  Future<Requisicao> findActvitesRequestById(String idRequest) async {
     try {
       final doc = _fireStoreDatabase
           .collection(
               UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-          .doc(idUsuario);
+          .doc(idRequest);
 
       final documentSnapshot = await doc.get();
 
       if (!documentSnapshot.exists) {
-        throw RequestException(
-            message: "identificador não existe,requisicão não encotrada");
+        throw RequestNoteFound();
       }
 
       final snapsShot = documentSnapshot.data();
       if (snapsShot == null) {
-        throw RequestException(message: "Requisicão não encotrada");
+        throw RequestNoteFound();
       }
 
       return Requisicao.fromMap(snapsShot);
-    } on RequestException catch (e, s) {
+    } on RequestNoteFound catch (e, s) {
       const message = 'erro ao encontrar requisiço ativa';
       _logger.erro(message, e, s);
-      throw RequestException(message: message);
+      throw RequestNoteFound();
     }
   }
 

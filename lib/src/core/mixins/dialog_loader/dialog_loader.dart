@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 mixin DialogLoader<e extends StatefulWidget> on State<e> {
+  var isLoading = false;
   void showLoaderDialog() {
-    showDialog(
+     isLoading = true;
+     if(isLoading){
+      showDialog(
         barrierDismissible: false,
         context: context,
         builder: (contextDialog) {
@@ -10,10 +13,14 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
             child: CircularProgressIndicator(),
           );
         });
+     }
   }
 
   void hideLoader() {
-    Navigator.pop(context);
+    if(isLoading){
+       Navigator.pop(context);
+       isLoading = false;
+    }
   }
   
   void dialogLocationPermissionDenied(VoidCallback onPositiveButton) {

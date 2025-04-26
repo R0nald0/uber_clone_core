@@ -87,7 +87,7 @@ class Requisicao {
     );
   }
 
-  Map<Object, Object?> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'idRequisicao': id,
       'destino': destino.toMap(),

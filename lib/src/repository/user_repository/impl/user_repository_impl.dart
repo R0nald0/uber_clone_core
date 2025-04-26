@@ -101,4 +101,5 @@ class UserRepositoryImpl implements IUserRepository {
       throw UserException(message: message);
     }
   }
+  
 }

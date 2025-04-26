@@ -1,0 +1,1 @@
+class RequestNoteFound implements Exception {}

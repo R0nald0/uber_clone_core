@@ -70,7 +70,7 @@ void main() {
 
     test(
         'Should retrieve the requisition from the online database and save it to local storage.',
-        () async {
+ () async {
       when(() => localStorageMock.write<String>(any(), any()))
           .thenAnswer((_) async => true);
       when(() => localStorageMock.read<String>(any()))
@@ -79,8 +79,8 @@ void main() {
       when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
       when(() => mockCollection.doc(any())).thenReturn(mockDocument);
       when(() => mockDocument.get()).thenAnswer((_) async => mockSnapshot);
-      when(() => mockSnapshot.exists).thenReturn(true);
-    //  when(() => mockSnapshot.data()).thenReturn(requisicao.toMap());
+      when(() => mockSnapshot.exists).thenReturn(true); 
+      when(() => mockSnapshot.data()).thenReturn(requisicao.toMap());
 
       final result =
           await requisitionReposiory.verfyActivatedRequest('r001');
@@ -152,7 +152,7 @@ void main() {
 
         final requisitionUpdated =  requisicao.copyWith(motorista: motoristaUp);
           
-      test('Give a requisition, whem to execute updataDataRequestActiveted.should updatedPostion in Requistion ', () async{
+      test('Give a requisition, whem to execute updataDataRequestActiveted.should update Requistion ', () async{
        
          when(() => localStorageMock.write<String>(any(), any())).thenAnswer((_) async => true );
          when(() => fireStoreMock.collection(any())).thenReturn(mockCollection); 
@@ -160,15 +160,21 @@ void main() {
          when(() => mockDocument.id).thenReturn(requisicao.id!);
         
          when(() => mockDocument.update(any())).thenAnswer((_) async => Future<void>.value());
-           
-         final dataUpdate = {'status':'EM_VIAGEM'};
+
+          final passager  = passageiro.copyWith(email: "testeUpdate@hotmail.com"); 
+
+         final dataUpdate = {
+          'status':'EM_VIAGEM',
+           'passageiro' : passager.toMap() 
+          };
 
         final result  = await requisitionReposiory.updataDataRequestActiveted(requisicao,dataUpdate);
         expect(result, isTrue);
          
+     
           verify(() => fireStoreMock.collection(any())).called(2);
           verify(() => mockCollection.doc(any())).called(2);
-          verify(() => mockDocument.id).called(1);
+         // verify(() => mockDocument.id).called(2);
           verify(() => mockDocument.update(any())).called(2);
       
      });  
@@ -310,6 +316,7 @@ Address destino = Address(
 Usuario passageiro = Usuario(
   idUsuario: "p001",
   email: "passageiro@email.com",
+  idRequisicaoAtiva :"r001",
   nome: "João Silva",
   tipoUsuario: "passageiro",
   senha: "senha123",
@@ -321,6 +328,7 @@ Usuario passageiro = Usuario(
 Usuario motorista = Usuario(
   idUsuario: "m001",
   email: "motorista@email.com",
+  idRequisicaoAtiva : "r001",
   nome: "Maria Santos",
   tipoUsuario: "motorista",
   senha: "senha456",

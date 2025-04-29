@@ -4,18 +4,23 @@
 final class UberCloneConstants {
   
   UberCloneConstants._();
-  // ignore: constant_identifier_names
+  
+  static const NOTIFICATION_ID = 'uber_app_channel';
+  static const NOTIFICATION_CHANNEL = 'Uber Notificação';
+
   static const KEY_PREFERENCE_USER = 'USER';
   static const KEY_PREFERENCE_REQUISITION_ACTIVE = 'REQUISITION_ACTIVE';
-  // ignore: constant_identifier_names
+
   static const USUARiO_DATABASE_NAME = 'usuario';
-  // ignore: constant_identifier_names
+
   static const REQUISITION_FIRESTORE_DATABASE_NAME = 'requisicao';
-  // ignore: constant_identifier_names
+
   static const REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME = 'requisicao-ativa';
-  // ignore: constant_identifier_names
+  static const PAYMENTS_DATA_BASE_NAME = 'payments_type';
+ 
   static const TIPO_USUARIO_PASSAGEIRO="passageiro";
   static const TIPO_USUARIO_MOTORISTA="motorista";
   static const LOTTI_ASSET_FIND_DRIVER="images/animations/find_driver.json";
+  static const ASSEESTS_IMAGE_LOGO="assets/images/logo.png";
 
 }

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 mixin DialogLoader<e extends StatefulWidget> on State<e> {
   var isLoading = false;
-  void showLoaderDialog() {
-     isLoading = true;
-     if(isLoading){
+  void showLoaderDialog() { 
+      if (!mounted) return;
+     if(!isLoading){
+       isLoading =true;
       showDialog(
         barrierDismissible: false,
         context: context,
@@ -15,12 +16,11 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
         });
      }
   }
-
-  void hideLoader() {
-    if(isLoading){
-       Navigator.pop(context);
+  
+  void hideLoader() { 
+        if (!mounted) return;
        isLoading = false;
-    }
+       Navigator.of(context,rootNavigator: true).pop();
   }
   
   void dialogLocationPermissionDenied(VoidCallback onPositiveButton) {
@@ -90,7 +90,6 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
            final theme = Theme.of(alertContext);
           return AlertDialog(
             titlePadding: const EdgeInsets.all(16),
-
             title:  Center(child: Text('Viagem Finalizada',
              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold) ,
             )) ,

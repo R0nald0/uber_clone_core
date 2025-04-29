@@ -1,4 +1,4 @@
-import 'package:uber_clone_core/src/core/exceptions/request_note_found.dart';
+import 'package:uber_clone_core/src/core/exceptions/request_not_found.dart';
 import 'package:uber_clone_core/src/core/exceptions/requisicao_exception.dart';
 import 'package:uber_clone_core/src/core/exceptions/user_exception.dart';
 import 'package:uber_clone_core/src/core/logger/i_app_uber_log.dart';
@@ -58,7 +58,7 @@ class RequisitonServiceImpl implements IRequistionService {
         throw RequestException(message: 'Erro ao atualizar dados da viagem');
       }
       return await _requisitionRepository.findActvitesRequestById(request.id!);
-    }on RequestNoteFound{
+    }on RequestNotFound{
       rethrow;
     }
      on RequestException {

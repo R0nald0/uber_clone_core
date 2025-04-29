@@ -22,7 +22,7 @@ class DatabaseImpl implements DatabaseOffLine {
       try {
           final db  = await  _sqlConnection.openConnection();
           final mapResults = await db.query($tableName);
-         return mapResults; 
+           return mapResults; 
       } on DatabaseException {
           rethrow;
       }

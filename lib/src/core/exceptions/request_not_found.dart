@@ -1,0 +1,1 @@
+class RequestNotFound implements Exception {}

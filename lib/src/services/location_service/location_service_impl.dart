@@ -41,7 +41,7 @@ class LocationServiceImpl implements ILocationService{
      position: LatLng(latitude, longitude),
      icon: icon ?? BitmapDescriptor.defaultMarkerWithHue(hue));
 } on PlatformException catch (e,s) {
-     const message = 'Erro ao criar buscar posições da viagem';
+     const message = 'Erro ao criar marcador de posição';
      _log.erro(message,e,s);
      throw  AddresException(message: message);
 } 

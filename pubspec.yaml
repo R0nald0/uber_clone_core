@@ -30,6 +30,9 @@ dependencies:
   flutter_getit: ^3.0.1
   validatorless: ^1.2.3
   mobx: ^2.4.0
+  firebase_messaging: ^15.2.5
+  
+  flutter_local_notifications: ^19.1.0
 
 
 dev_dependencies:

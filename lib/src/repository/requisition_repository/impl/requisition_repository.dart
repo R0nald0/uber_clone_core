@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uber_clone_core/src/core/exceptions/request_note_found.dart';
+import 'package:uber_clone_core/src/core/exceptions/request_not_found.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
@@ -29,16 +29,16 @@ class RequisitionRepository implements IRequestRepository {
         final requestActved = await findActvitesRequestById(idUser);
         final isSuccess = await _saveRequisitionOnPreference(requestActved);
         if (!isSuccess) {
-          throw RequestNoteFound();
+          throw RequestNotFound();
         }
         return requestActved;
       }
 
       return requisicao;
-    } on RequestNoteFound catch (e, s) {
+    } on RequestNotFound catch (e, s) {
       const message = 'Nenhuma requisição encontrado com este id';
       _logger.erro(message, e, s);
-      throw RequestNoteFound();
+      throw RequestNotFound();
     }
   }
 
@@ -274,19 +274,19 @@ class RequisitionRepository implements IRequestRepository {
       final documentSnapshot = await doc.get();
 
       if (!documentSnapshot.exists) {
-        throw RequestNoteFound();
+        throw RequestNotFound();
       }
 
       final snapsShot = documentSnapshot.data();
       if (snapsShot == null) {
-        throw RequestNoteFound();
+        throw RequestNotFound();
       }
 
       return Requisicao.fromMap(snapsShot);
-    } on RequestNoteFound catch (e, s) {
+    } on RequestNotFound catch (e, s) {
       const message = 'erro ao encontrar requisiço ativa';
       _logger.erro(message, e, s);
-      throw RequestNoteFound();
+      throw RequestNotFound();
     }
   }
 

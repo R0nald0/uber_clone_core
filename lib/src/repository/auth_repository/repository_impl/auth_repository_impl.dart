@@ -20,16 +20,15 @@ class AuthRepositoryImpl implements IAuthRepository {
 
   @override
   Future<String?> verifyStateUserLogged() async {
+    
     final userCompleter = Completer<String?>();
     _auth.authStateChanges().listen((user) {
       if (user != null) {
         userCompleter.complete(user.uid);
-        
       } else {
         userCompleter.complete(null);
       }
     });
-
     return await userCompleter.future;
   }
 
@@ -113,7 +112,7 @@ class AuthRepositoryImpl implements IAuthRepository {
   @override
   Future<void> logout() => _auth.signOut();
 
-  Exception _throwErrorState(String message, dynamic e, StackTrace s) {
+  Never _throwErrorState(String message, dynamic e, StackTrace s) {
     _log.erro(message, e, s);
     throw UserException(message: message);
   }

@@ -45,16 +45,18 @@ class RequisitonServiceImpl implements IRequistionService {
 
   @override
   Future<Requisicao> updataDataRequisition(
-      Requisicao request, Map<Object, Object?> dataToUpdate) async {
+      Requisicao request) async {
     try {
-      if (request.id == null || request.motorista == null) {
-        throw RequestException(message: "erro ao atualizar requisição");
+       
+      if (request.id == null) {
+        throw RequestException(message: "Erro ao atualizar requisição,id inválido");
       }
 
-      final isSuccess = await _requisitionRepository.updataDataRequestActiveted(
-          request, dataToUpdate);
+      final isSuccess = await _requisitionRepository.updataDataRequestActiveted(request);
+     // final isSuccess = await _requisitionRepository.deleteAcvitedRequest(request);
 
       if (!isSuccess) {
+        deleteAcvitedRequest(request);
         throw RequestException(message: 'Erro ao atualizar dados da viagem');
       }
       return await _requisitionRepository.findActvitesRequestById(request.id!);

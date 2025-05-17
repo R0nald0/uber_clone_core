@@ -9,7 +9,7 @@ abstract interface class IRequistionService {
    Future<String> createRequisition(Requisicao requisicao);
    Future<bool> cancelRequisition(Requisicao requisition);
    Stream<String> listenerRequisicao(String idRequisicao);
-   Future<Requisicao> updataDataRequisition(Requisicao request,Map<Object,Object?> dataToUpdate);
+   Future<Requisicao> updataDataRequisition(Requisicao request);
    Stream<List<Requisicao>> findAndObserverTrips();
    Stream<Requisicao> findAndObserverById(Requisicao request);
   Future<void> updateDataTripOn(Requisicao request);

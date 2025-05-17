@@ -6,6 +6,7 @@ class UberMessanger {
    final String? icon;
    final String? imgUrl;
    final DateTime? dateTime;
+   final Map<String,dynamic>? data;
 
   UberMessanger({
     this.title,
@@ -13,15 +14,18 @@ class UberMessanger {
     this.icon,
     this.imgUrl,
     this.dateTime,
+    this.data
   });
 
-  factory UberMessanger.toUberMessanger(String? title,String? body,String? imageUrl,DateTime? dateTime,String? icon){
+  factory UberMessanger.toUberMessanger(String? title,String? body,String? imageUrl,DateTime? dateTime,String? icon, Map<String,dynamic>? data){
       return UberMessanger(
          title: title,
          body: body,
          imgUrl: imageUrl,
          dateTime: dateTime ?? DateTime.now(),
-         icon: icon
+         icon: icon,
+         data: data
+
         );
   }
     

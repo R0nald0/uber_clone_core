@@ -22,6 +22,7 @@ class MockDocumentReference extends Mock
     implements DocumentReference<Map<String, dynamic>> {}
 
 class MockLocalStorage extends Mock implements LocalStorage {}
+class MockRquest extends Mock implements Requisicao {}
 
 class MockLog extends Mock implements IAppUberLog {}
 
@@ -33,10 +34,11 @@ void main() {
   late MockAppUberLog logMock;
   late MockLocalStorage localStorageMock;
   late MockLocalfireStore fireStoreMock;
-
+  late MockRquest mockRquest;
   late RequisitionRepository requisitionReposiory;
 
   setUp((){
+    mockRquest =  MockRquest();
     mockCollection = MockCollectionReference();
     mockDocument = MockDocumentReference();
     mockSnapshot = MockDocumentSnapshot();
@@ -94,6 +96,8 @@ void main() {
       verify(() => mockDocument.get()).called(1);
       verify(() => mockSnapshot.data()).called(1);
     });
+
+    
   });
   group("create requests tests", () {
      
@@ -149,10 +153,9 @@ void main() {
 
    group('updateRequisitonTests', (){
          final motoristaUp = requisicao.motorista!.copyWith(latitude: 2,longitude: 32);
-
-        final requisitionUpdated =  requisicao.copyWith(motorista: motoristaUp);
+         final requisitionUpdated =  requisicao.copyWith(motorista: motoristaUp);
           
-      test('Give a requisition, whem to execute updataDataRequestActiveted.should update Requistion ', () async{
+     test('Give a requisition, whem to execute updataDataRequestActiveted.should update Requistion ', () async{
        
          when(() => localStorageMock.write<String>(any(), any())).thenAnswer((_) async => true );
          when(() => fireStoreMock.collection(any())).thenReturn(mockCollection); 
@@ -168,30 +171,27 @@ void main() {
            'passageiro' : passager.toMap() 
           };
 
-        final result  = await requisitionReposiory.updataDataRequestActiveted(requisicao,dataUpdate);
+        final result  = await requisitionReposiory.updataDataRequestActiveted(requisicao);
         expect(result, isTrue);
-         
      
           verify(() => fireStoreMock.collection(any())).called(2);
           verify(() => mockCollection.doc(any())).called(2);
-         // verify(() => mockDocument.id).called(2);
+         
           verify(() => mockDocument.update(any())).called(2);
       
      });  
-
-     test('Give a requisition, whem to execute updateUserPositionRequestActiveted.should updatedPostion in Requistion ', () async{
+    
+     test('updateUserPositionRequestActiveted,should retunr RepositoryException when converter invalid json', () async{
          
          when(() => fireStoreMock.collection(any())).thenReturn(mockCollection); 
          when(() => mockCollection.doc(any())).thenReturn(mockDocument);
-         when(() => mockDocument.id).thenReturn(requisicao.id!);
-         when(() => mockDocument.update(any())).thenAnswer((_) async => Future<void>.value());
+         when(() => mockDocument.update(any())).thenThrow(ArgumentError(''));
+            
+        expect(() => requisitionReposiory.updateUserPositionRequestActiveted(requisitionUpdated),throwsA(isA<RequestException>()));  
 
-        final result  = await requisitionReposiory.updateUserPositionRequestActiveted(requisicao);
-         
         verify(() => fireStoreMock.collection(any())).called(1);
         verify(() => mockCollection.doc(any())).called(1);
-       // verify(() => mockDocument.id).called(1);
-        verify(() => mockDocument.update(any())).called(1);
+        verify(() => mockDocument.update(any())).called(1); 
       
      });
 
@@ -299,7 +299,7 @@ void main() {
 
 
 
-Address destino = Address(
+final destino = Address(
   id: 1,
   rua: "Rua Principal",
   nomeDestino: "Shopping Center",
@@ -313,7 +313,7 @@ Address destino = Address(
 );
 
 // Criando o objeto Usuario (passageiro)
-Usuario passageiro = Usuario(
+final passageiro = Usuario(
   idUsuario: "p001",
   email: "passageiro@email.com",
   idRequisicaoAtiva :"r001",
@@ -325,7 +325,7 @@ Usuario passageiro = Usuario(
 );
 
 // Criando o objeto Usuario (motorista)
-Usuario motorista = Usuario(
+final motorista = Usuario(
   idUsuario: "m001",
   email: "motorista@email.com",
   idRequisicaoAtiva : "r001",
@@ -336,12 +336,14 @@ Usuario motorista = Usuario(
   longitude: -46.6350,
 );
 
+final paymentType = PaymentType(id: 1, type: 'dinheiro');
 // Criando o objeto Requisicao
 Requisicao requisicao = Requisicao(
+  paymentType: paymentType,
   id: "r001",
   destino: destino,
   passageiro: passageiro,
-  status: "Aguardando",
+  status: RequestState.aguardando,
   motorista: motorista,
   valorCorrida: "25.50",
 );

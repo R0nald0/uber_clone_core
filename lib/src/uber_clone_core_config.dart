@@ -23,7 +23,6 @@ class UberCloneCoreConfig extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   AppConfigInitialization();
 
     return FlutterGetIt(
       modulesRouter: modulesRouter,

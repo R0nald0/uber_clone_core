@@ -1,7 +1,5 @@
 
-
-
-final class UberCloneConstants {
+ class UberCloneConstants {
   
   UberCloneConstants._();
   
@@ -20,7 +18,8 @@ final class UberCloneConstants {
  
   static const TIPO_USUARIO_PASSAGEIRO="passageiro";
   static const TIPO_USUARIO_MOTORISTA="motorista";
-  static const LOTTI_ASSET_FIND_DRIVER="images/animations/find_driver.json";
+  static const LOTTI_ASSET_FIND_DRIVER="assets/images/animations/find_driver.json";
   static const ASSEESTS_IMAGE_LOGO="assets/images/logo.png";
+  static const ASSEESTS_IMAGE="assets/images";
 
 }

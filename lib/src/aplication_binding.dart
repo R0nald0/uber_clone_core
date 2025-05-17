@@ -10,6 +10,7 @@ import 'package:uber_clone_core/src/repository/auth_repository/I_auth_repository
 import 'package:uber_clone_core/src/repository/auth_repository/repository_impl/auth_repository_impl.dart';
 import 'package:uber_clone_core/src/repository/location_repository/i_location_repository.dart';
 import 'package:uber_clone_core/src/repository/location_repository/location_repository_impl.dart';
+import 'package:uber_clone_core/src/repository/payments_repository/i_payments_repository.dart';
 import 'package:uber_clone_core/src/repository/payments_repository/impl/payments_types_repository.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/impl/requisition_repository.dart';
@@ -19,33 +20,35 @@ import 'package:uber_clone_core/src/services/adress_service/impl/addres_service.
 import 'package:uber_clone_core/src/services/authservice/auth_service_impl.dart';
 import 'package:uber_clone_core/src/services/location_service/location_service_impl.dart';
 import 'package:uber_clone_core/src/services/notification_service/impl/service_notification_impl.dart';
+import 'package:uber_clone_core/src/services/payment/impl/payment_service_impl.dart';
 import 'package:uber_clone_core/src/services/requisitionService/impl/requisiton_service_impl.dart';
 import 'package:uber_clone_core/src/services/trip_service/trip_service.dart';
 import 'package:uber_clone_core/src/services/user_service/impl/user_service_impl.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
 class AplicationBinding extends ApplicationBindings {
-    
   @override
   List<Bind<Object>> bindings() => [
         Bind.lazySingleton<DatabaseOffLine>((i) => DatabaseImpl()),
         Bind.lazySingleton<IAppUberLog>((i) => AppUberLogImpl()),
         Bind.lazySingleton<LocalStorage>((i) => LocalStorageImpl()),
         Bind.lazySingleton((i) => FirebaseFirestore.instance),
-        Bind.lazySingleton((i)=> PaymentsTypesRepositoryImpl(firestore: i())),
-    
-      
-        Bind.lazySingleton<IRequestRepository>(
-            (i) => RequisitionRepository(logger: i(), localStorage: i(), firestore: i())),
+        Bind.lazySingleton<IPaymentsRepository>(
+            (i) => PaymentsTypesRepositoryImpl(firestore: i())),
+        Bind.lazySingleton(
+            (i) => FirebaseNotfication(notificationService: i())),
+        Bind.lazySingleton<IPaymentService>(
+            (i) => PaymentServiceImpl(paymentsRepository: i())),
+        Bind.lazySingleton<IRequestRepository>((i) => RequisitionRepository(
+            logger: i(), localStorage: i(), firestore: i())),
         Bind.lazySingleton<IAuthRepository>(
             (i) => AuthRepositoryImpl(database: i(), logger: i())),
-        Bind.lazySingleton<IUserRepository>(
-            (i) => UserRepositoryImpl(database: i(), localStoreage:i(), log:i())),
+        Bind.lazySingleton<IUserRepository>((i) =>
+            UserRepositoryImpl(database: i(), localStoreage: i(), log: i())),
         Bind.lazySingleton<ILocationRepository>(
             (i) => LocationRepositoryImpl(log: i())),
-        Bind.lazySingleton<IAddressRepository>((i) => AddressRepositoryImpl(database: i(), log: i()))  ,  
-
-
+        Bind.lazySingleton<IAddressRepository>(
+            (i) => AddressRepositoryImpl(database: i(), log: i())),
         Bind.lazySingleton<ITripSerivce>(
             (i) => TripService(locationRepositoryImpl: i())),
         Bind.lazySingleton<IRequistionService>((i) => RequisitonServiceImpl(
@@ -53,8 +56,9 @@ class AplicationBinding extends ApplicationBindings {
             authRepository: i(),
             log: i(),
             userRepository: i())),
-        Bind.lazySingleton((i) => MapsCameraService()),   
-            Bind.lazySingleton<INotificationService>((i) => ServiceNotificationImpl()), 
+        Bind.lazySingleton((i) => MapsCameraService()),
+        Bind.lazySingleton<INotificationService>(
+            (i) => ServiceNotificationImpl()),
         Bind.lazySingleton<ILocationService>(
             (i) => LocationServiceImpl(locationRepositoryImpl: i(), log: i())),
         Bind.lazySingleton<IUserService>(
@@ -64,6 +68,8 @@ class AplicationBinding extends ApplicationBindings {
             log: i(),
             authrepository: i(),
             userRepository: i())),
-         Bind.lazySingleton<IAddresService>((i) =>AddresService(addressRepository: i()) ,)     
+        Bind.lazySingleton<IAddresService>(
+          (i) => AddresService(addressRepository: i()),
+        )
       ];
 }

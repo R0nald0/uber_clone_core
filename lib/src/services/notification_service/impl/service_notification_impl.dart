@@ -1,12 +1,13 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:uber_clone_core/src/constants/uber_clone_constants.dart';
-import 'package:uber_clone_core/src/model/uber_messager.dart';
 import 'package:uber_clone_core/src/services/notification_service/i_notification_service.dart';
 
 class ServiceNotificationImpl implements INotificationService {
   final firebaseMassage = FirebaseMessaging.instance;
   final notificationPugin = FlutterLocalNotificationsPlugin();
+   
+   ServiceNotificationImpl(){}
 
   Future<void> initializedNotification()  async{
     const initializedSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -34,58 +35,25 @@ class ServiceNotificationImpl implements INotificationService {
         maxProgress: maxProgress  ?? 0,
         showProgress: showProgress ?? false ,
         importance: Importance.max,
-        priority: Priority.high
+        priority: Priority.max
         ),
         iOS: const DarwinNotificationDetails()
     );
-
   }
 
-
-  @override
-  Future<void> requestPermission() async {
-    final notificationSetting = await firebaseMassage.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-    notificationSetting.authorizationStatus.name;
-  }
-
+  
   @override
   Future<void> showNotification({ String? icon,int? progress,int? maxProgress,bool? showProgress,bool? indeterminate,
+  @override
   int id = 0,required String title,required String body}) async {
     return notificationPugin.show(id, title, body, _initializeDetailsNotification(
       icon,
       progress,
       maxProgress,
       showProgress,
-      indeterminate
+      indeterminate,
       ));
   }
-
-  @override
-  Stream<UberMessanger> getNotificationFistPlane() async* {
-    yield*  FirebaseMessaging.onMessage.asyncMap(
-      (messanger) => UberMessanger.toUberMessanger(
-      messanger.notification?.title, 
-      messanger.notification?.body, 
-      messanger.notification?.android?.imageUrl, 
-      messanger.sentTime, 
-      messanger.notification?.android?.smallIcon
-      ) );
-  }
-
-  @override
-  Stream<String> onTokenRefresh() async* {
-   yield* firebaseMassage.onTokenRefresh;
-  }
-
-  @override
-  Future<String?> getTokenDevice() =>firebaseMassage.getToken();
+  
 
 }

@@ -9,8 +9,7 @@ abstract class IRequestRepository {
   Future<String> createRequestActive(Requisicao requisicao);
   Future<bool> cancelRequest(Requisicao requisition);
   Stream<String> listenerRequest(String idRequisicao);
-  Future<bool> updataDataRequestActiveted(
-      Requisicao request, Map<Object, Object?> dataToUpdate);
+  Future<bool> updataDataRequestActiveted(Requisicao request);
   Future<void> updateUserPositionRequestActiveted(Requisicao request);
   Stream<Requisicao> findAndObserverRequestbyId(Requisicao request);
 

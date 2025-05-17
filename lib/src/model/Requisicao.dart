@@ -4,6 +4,9 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:uber_clone_core/src/model/addres.dart';
+import 'package:uber_clone_core/src/model/payment_type.dart';
+import 'package:uber_clone_core/src/util/request_state.dart';
+
 
 import 'Usuario.dart';
 
@@ -11,11 +14,16 @@ class Requisicao {
   final String? id;
   final Address destino;
   final Usuario passageiro;
-  final String status;
+  final RequestState status;
   final Usuario? motorista;
   final String valorCorrida;
+  final PaymentType paymentType ;
   
-  Requisicao({required this.id, required this.destino,required this.motorista,required this.passageiro,required this.status,required this.valorCorrida});
+  Requisicao({
+    required this.id, 
+    required this.destino,
+    required this.paymentType,
+    required this.motorista,required this.passageiro,required this.status,required this.valorCorrida});
 
  /*  Requisicao.consulta(){
       //OBTENDO ID REQUISICAO DA COLLECION
@@ -25,23 +33,25 @@ class Requisicao {
   
   Requisicao.empty() :
     id =null,
+    paymentType = PaymentType.empty(),
     destino =Address.emptyAddres(),
     motorista =Usuario.emptyUser(),
     passageiro =Usuario.emptyUser(),
-    status ='',
+    status =RequestState.nao_chamado,
     valorCorrida ='',
     super();
 
 
-  Map<String,dynamic> dadosPassageiroToMap(){
+  Map<String,dynamic> requestToMap(){
 
     Map<String,dynamic> dadosPassageiro={
+
       "idUsuario" :  passageiro.idUsuario,
       "nome":        passageiro.nome,
       "email":       passageiro.email,
       "tipoUsuario": passageiro.tipoUsuario,
       "latitude" :   passageiro.latitude,
-      "longitude" :  passageiro.longitude
+      "longitude" :  passageiro.longitude,
     };
 
     Map<String,dynamic> dadosDestino={
@@ -58,11 +68,12 @@ class Requisicao {
 
     Map<String,dynamic> dadosRequisicao ={
       "idRequisicao" :id,
-      "status" :status,
+      "status" :status.value,
       "valorCorrida" :valorCorrida,
       "motorista" : motorista,
       "passageiro": dadosPassageiro,
-      "destino" :dadosDestino
+      "destino" :dadosDestino,
+      "payment_type" : paymentType.toMap(),
     };
 
     return dadosRequisicao;
@@ -73,8 +84,9 @@ class Requisicao {
     ValueGetter<String?>? id,
     Address? destino,
     Usuario? passageiro,
-    String? status,
+    RequestState? status,
     Usuario? motorista,
+    PaymentType? paymentType,
     String? valorCorrida,
   }) {
     return Requisicao(
@@ -83,6 +95,7 @@ class Requisicao {
       passageiro: passageiro ?? this.passageiro,
       status: status ?? this.status,
       motorista: motorista ?? this.motorista,
+      paymentType: paymentType ?? this.paymentType,
       valorCorrida: valorCorrida ?? this.valorCorrida,
     );
   }
@@ -92,21 +105,35 @@ class Requisicao {
       'idRequisicao': id,
       'destino': destino.toMap(),
       'passageiro': passageiro.toMap(),
-      'status': status,
+      'status': status.value,
       'motorista': motorista?.toMap(),
       'valorCorrida': valorCorrida,
+      'payment_type': paymentType.toMap(),
     };
   }
 
   factory Requisicao.fromMap(Map<String, dynamic> map) {
-    return Requisicao(
-      id: map['idRequisicao'],
-      destino: Address.fromMap(map['destino']),
-      passageiro: Usuario.fromMap(map['passageiro']),
-      status: map['status'] ?? '',
-      motorista: map['motorista'] != null ? Usuario.fromMap(map['motorista']) : null,
-      valorCorrida: map['valorCorrida'] ?? '',
-    );
+    return switch(map){
+       {'idRequisicao': final String id,
+       'destino' : final Map<String,dynamic>  destino,
+       'passageiro' : final Map<String,dynamic> passageiro,
+       'status' : final String status ,
+       'motorista': final Map<String,dynamic>? motorista,
+       'payment_type' : final Map<String,dynamic> paymentType,
+       'valorCorrida' :final String valorCorrida 
+       }
+      =>
+    Requisicao(
+      id: id,
+      destino: Address.fromMap(destino),
+      passageiro: Usuario.fromMap(passageiro),
+      status:  RequestState.nao_chamado.findByName(status),
+      paymentType: PaymentType.fromMap(paymentType),
+      motorista: motorista != null ? Usuario.fromMap(motorista): null  ,
+      valorCorrida: valorCorrida,
+    ),
+     _ => throw ArgumentError('Invalid json')
+   };
   }
 
   String toJson() => json.encode(toMap());

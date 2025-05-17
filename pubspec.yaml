@@ -53,8 +53,19 @@ flutter:
 
   # To add assets to your package, add an assets section, like this:
   assets:
-     - assets/images/logo.png
-     - assets/images/fundo.png
+    - assets/images/fundo.png
+    - assets/images/logo.png
+    - assets/images/passageiro.png
+    - assets/images/motorista.png
+    - assets/images/user.png
+    - assets/images/destino.png
+    - assets/images/carro.png
+    - assets/images/destino.png
+    - assets/images/destination1.png
+    - assets/images/destination2.png
+    - assets/images/uber_car.jpg
+    - assets/images/map_car.png
+    - assets/images/uber_moto.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   #

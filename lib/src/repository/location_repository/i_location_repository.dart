@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:uber_clone_core/src/model/user_position.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
 abstract interface class ILocationRepository {

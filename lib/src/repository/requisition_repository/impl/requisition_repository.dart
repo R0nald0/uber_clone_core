@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uber_clone_core/src/core/exceptions/request_not_found.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
@@ -39,27 +39,33 @@ class RequisitionRepository implements IRequestRepository {
       const message = 'Nenhuma requisição encontrado com este id';
       _logger.erro(message, e, s);
       throw RequestNotFound();
+    } on ArgumentError {
+      throw RequestNotFound();
     }
   }
 
   Future<Requisicao?> _readPrefenceData(String keyPreference) async {
-    final requisicao = await _localStorage.read<String>(keyPreference);
+    try {
+      final requisicao = await _localStorage.read<String>(keyPreference);
 
-    if (requisicao == null) {
-      return null;
+      if (requisicao == null) {
+        return null;
+      }
+
+      return Requisicao.fromJson(requisicao);
+    } on Exception catch (e, s) {
+      log("Erro ao conveter json", error: e, stackTrace: s);
+      throw ArgumentError();
     }
-
-    return Requisicao.fromJson(requisicao);
   }
 
   Future<bool> _saveOndRequestList(Requisicao requisition) async {
     try {
       final docRef = _fireStoreDatabase
-          .collection(
-              UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
+          .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
           .doc(requisition.id);
 
-      await docRef.set(requisition.dadosPassageiroToMap());
+      await docRef.set(requisition.toMap());
 
       return await _saveRequisitionOnPreference(requisition);
     } on FirebaseException catch (e, s) {
@@ -87,24 +93,25 @@ class RequisitionRepository implements IRequestRepository {
   Future<String> createRequestActive(Requisicao requisicao) async {
     try {
       final docRef = _fireStoreDatabase
-          .collection(UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
+          .collection(
+              UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
           .doc();
 
       final requisitionWithId = requisicao.copyWith(id: () => docRef.id);
-      await docRef.set(requisitionWithId.dadosPassageiroToMap());
-      final saved =  await _saveOndRequestList(requisitionWithId); 
-      if (!saved) {
-          deleteAcvitedRequest(requisicao);
-          throw RequestException(message: "Erro salar requisição no banco");
-      }   
-      return docRef.id;
+      await docRef.set(requisitionWithId.toMap());
+      final saved = await _saveOndRequestList(requisitionWithId);
 
+      if (!saved) {
+        deleteAcvitedRequest(requisicao);
+        throw RequestException(message: "Erro salvar requisição no banco");
+      }
+      return docRef.id;
     } on FirebaseException catch (e, s) {
       const message = 'Erro ao criar requisição';
       _logger.erro(message, e, s);
       throw RequestException(message: message);
-    } on RequestException  catch(e,s){
-       const message = 'Erro ao criar requisição local storage';
+    } on RequestException catch (e, s) {
+      const message = 'Erro ao criar requisição local storage';
       _logger.erro(message, e, s);
       throw RequestException(message: e.message);
     }
@@ -119,7 +126,7 @@ class RequisitionRepository implements IRequestRepository {
     final updateDataRequisition = await _fireStoreDatabase
         .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
         .doc(requisition.id)
-        .update({"status": Status.CANCELADA}).then((_) async {
+        .update({"status": RequestState.cancelado.value}).then((_) async {
       return true;
     }, onError: (e) {
       _logger.erro("Erro ao atualizar requsição");
@@ -135,7 +142,7 @@ class RequisitionRepository implements IRequestRepository {
             UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
         .doc(requisition.id);
 
-    await docRefActive.update({"status": Status.CANCELADA});
+    await docRefActive.update({"status": RequestState.cancelado.value});
 
     return await docRefActive.delete().then((_) async {
       final isRemoved = await _localStorage
@@ -161,17 +168,16 @@ class RequisitionRepository implements IRequestRepository {
   }
 
   @override
-  Future<bool> updataDataRequestActiveted(
-      Requisicao request, Map<Object, Object?> dataToUpdate) async {
+  Future<bool> updataDataRequestActiveted(Requisicao request) async {
     try {
       final doc = _fireStoreDatabase
           .collection(
               UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
           .doc(request.id);
 
-      await doc.update(dataToUpdate);
+      await doc.update(request.toMap());
 
-      await _updateRequisition(request, dataToUpdate);
+      await _updateRequisition(request);
 
       final saved = await _localStorage.write<String>(
           UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE,
@@ -194,21 +200,24 @@ class RequisitionRepository implements IRequestRepository {
           .doc(request.id!);
 
       await docRef.update(request.toMap());
+      
     } on RequestException catch (e, s) {
       const message = 'erro ao atualizar a requisiçao ativa';
       _logger.erro(message, e, s);
       throw RequestException(message: message);
+    } on ArgumentError catch (e, s) {
+      _logger.erro('Erro ao converter map', e.message, s);
+      throw RequestException(message: "Erro ao atualizar ao a requisição");
     }
   }
 
-  Future<void> _updateRequisition(
-      Requisicao request, Map<Object, Object?> dataToUpdate) async {
+  Future<void> _updateRequisition(Requisicao request) async {
     try {
       final docReq = _fireStoreDatabase
           .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
           .doc(request.id);
 
-      await docReq.update(dataToUpdate);
+      await docReq.update(request.toMap());
     } on Exception catch (e, s) {
       const message = 'erro ao atualizar a requisiçao';
       _logger.erro(message, e, s);
@@ -222,7 +231,7 @@ class RequisitionRepository implements IRequestRepository {
       final querySnapshot = await _fireStoreDatabase
           .collection(
               UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-          .where('status', isEqualTo: Status.AGUARDANDO)
+          .where('status', isEqualTo: RequestState.aguardando.value)
           .get();
       final requisicoes = querySnapshot.docs.map((element) {
         return Requisicao.fromMap(element.data());
@@ -242,7 +251,7 @@ class RequisitionRepository implements IRequestRepository {
       final query = _fireStoreDatabase
           .collection(
               UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-          .where('status', isEqualTo: Status.AGUARDANDO);
+          .where('status', isEqualTo: RequestState.aguardando.value);
 
       await for (var snapshot in query.snapshots()) {
         final request = snapshot.docs.map((docElement) {
@@ -286,6 +295,8 @@ class RequisitionRepository implements IRequestRepository {
     } on RequestNotFound catch (e, s) {
       const message = 'erro ao encontrar requisiço ativa';
       _logger.erro(message, e, s);
+      throw RequestNotFound();
+    }on ArgumentError{
       throw RequestNotFound();
     }
   }

@@ -148,6 +148,7 @@ class LocationRepositoryImpl implements ILocationRepository {
       var poliCordernate = <LatLng>[];
 
       final polyline = PolylinePoints();
+      
       final polylineResult = await polyline.getRouteBetweenCoordinates(
           googleApiKey: mapskey,
           request: PolylineRequest(
@@ -165,6 +166,7 @@ class LocationRepositoryImpl implements ILocationRepository {
           poliCordernate.add(LatLng(point.latitude, point.longitude));
         }
       }
+      
       final route = _createPolineRoute(poliCordernate, lineColor, widthLine);
       final polylineData = PolylineData(
           router: route,

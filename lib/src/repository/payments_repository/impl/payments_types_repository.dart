@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uber_clone_core/src/core/exceptions/repository_exception.dart';
 import 'package:uber_clone_core/src/repository/payments_repository/i_payments_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
@@ -19,14 +18,14 @@ class PaymentsTypesRepositoryImpl implements IPaymentsRepository {
           .get();
 
       if (qSnapshot.docs.isEmpty) {
-         return List.empty();
+        return List.empty();
       }
-    
+
       return qSnapshot.docs
           .map<PaymentType>((doc) => PaymentType.fromQuerySnapshot(doc))
           .toList();
-    } on ArgumentError catch (e,s) {
-      log('Erro ao converter dados',error: e,stackTrace: s);
+    } on ArgumentError catch (e, s) {
+      log('Erro ao converter dados', error: e, stackTrace: s);
       throw RepositoryException(message: 'Erro ao buscar tipos de pagemntos');
     }
   }
@@ -50,4 +49,6 @@ class PaymentsTypesRepositoryImpl implements IPaymentsRepository {
       throw RepositoryException(message: 'Erro ao buscar dados');
     }
   }
+
+
 }

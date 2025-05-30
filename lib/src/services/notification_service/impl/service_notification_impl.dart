@@ -1,15 +1,24 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:uber_clone_core/src/constants/uber_clone_constants.dart';
 import 'package:uber_clone_core/src/services/notification_service/i_notification_service.dart';
 
 class ServiceNotificationImpl implements INotificationService {
-  final firebaseMassage = FirebaseMessaging.instance;
-  final notificationPugin = FlutterLocalNotificationsPlugin();
-   
-   ServiceNotificationImpl(){}
+  
+  final _notificationPugin = FlutterLocalNotificationsPlugin();
+  
+  static  ServiceNotificationImpl? _i ;
 
-  Future<void> initializedNotification()  async{
+  ServiceNotificationImpl._(){
+     _initializedNotification();
+   }
+
+  factory ServiceNotificationImpl(){
+     _i ??= ServiceNotificationImpl._();
+     return _i!;
+   }
+
+  Future<void> _initializedNotification()  async{
     const initializedSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
     const initializeIOSSetting = DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -20,7 +29,7 @@ class ServiceNotificationImpl implements INotificationService {
       android: initializedSettingsAndroid,
       iOS: initializeIOSSetting
     );
-    notificationPugin.initialize(initisetting);
+    _notificationPugin.initialize(initisetting);
   }
   NotificationDetails _initializeDetailsNotification(String? icon,int? progress,int? maxProgress,bool? showProgress,bool? indeterminate){
     
@@ -46,7 +55,7 @@ class ServiceNotificationImpl implements INotificationService {
   Future<void> showNotification({ String? icon,int? progress,int? maxProgress,bool? showProgress,bool? indeterminate,
   @override
   int id = 0,required String title,required String body}) async {
-    return notificationPugin.show(id, title, body, _initializeDetailsNotification(
+    return _notificationPugin.show(id, title, body, _initializeDetailsNotification(
       icon,
       progress,
       maxProgress,

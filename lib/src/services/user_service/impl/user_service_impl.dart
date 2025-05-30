@@ -1,6 +1,6 @@
 
 
-import 'package:uber_clone_core/src/model/Usuario.dart';
+import 'package:uber_clone_core/src/model/usuario.dart';
 import 'package:uber_clone_core/src/repository/user_repository/i_user_repository.dart';
 import 'package:uber_clone_core/src/services/user_service/i_user_service.dart';
 

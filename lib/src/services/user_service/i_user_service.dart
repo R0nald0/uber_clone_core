@@ -1,6 +1,6 @@
 
 
-import 'package:uber_clone_core/src/model/Usuario.dart';
+import 'package:uber_clone_core/src/model/usuario.dart';
 
 abstract interface class IUserService {
    Future<Usuario?> getDataUserOn(String idUser);

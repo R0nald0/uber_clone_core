@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:decimal/decimal.dart';
 
 import 'package:flutter_getit/flutter_getit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -58,6 +59,7 @@ void main() {
           senha: 'senha123',
           latitude: -23.55052,
           longitude: -46.633308,
+          balance: Decimal.parse('150.00')
         );
       });
 

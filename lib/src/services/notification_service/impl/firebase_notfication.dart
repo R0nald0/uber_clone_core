@@ -1,11 +1,12 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:uber_clone_core/src/services/notification_service/impl/service_notification_impl.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
 class FirebaseNotfication{
   final _firebaseMessage = FirebaseMessaging.instance;
-  final INotificationService _notificationService;
+
    
-  FirebaseNotfication({required INotificationService notificationService}):_notificationService = notificationService{
+  FirebaseNotfication(){
       _initFirebasMessageConfig();
   }
 
@@ -54,7 +55,7 @@ class FirebaseNotfication{
       message.notification?.android?.smallIcon,
       message.data
       );
-     _notificationService.showNotification(title: uberMessage.title!, body:uberMessage.body!);
+     ServiceNotificationImpl().showNotification(title: uberMessage.title!, body:uberMessage.body!);
     });
   }
 
@@ -63,6 +64,5 @@ class FirebaseNotfication{
   }
 
   Future<String?> getTokenDevice() =>_firebaseMessage.getToken();   
-
 
 }

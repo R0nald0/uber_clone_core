@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:uber_clone_core/src/core/offline_database/database_off_line.dart';
 import 'package:uber_clone_core/src/core/offline_database/sql_connection.dart';
-import 'package:uber_clone_core/src/model/Usuario.dart';
+import 'package:uber_clone_core/src/model/usuario.dart';
 
 
 class DatabaseImpl implements DatabaseOffLine {

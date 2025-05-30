@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 mixin DialogLoader<e extends StatefulWidget> on State<e> {
   var isLoading = false;
+
   void showLoaderDialog() {
     if (!mounted) return;
     if (!isLoading) {
@@ -29,7 +30,7 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
         builder: (alertContext) {
           return AlertDialog(
             content: const Text(
-                'Perciasamos da sua localizaão para realizar a melhor rota para sua viagem'),
+                'Percisamos da sua localização para realizar a melhor rota para sua viagem'),
             actions: [
               TextButton(
                   onPressed: () {
@@ -87,12 +88,13 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void showTripDialogValues(String price, VoidCallback onPositiveButton) {
-    showDialog(
+  void showTripDialogValues({required String price,required VoidCallback onPositiveButton,required VoidCallback onNegativeButton}) {
+       showDialog(
+        useRootNavigator: false,
         context: context,
         barrierDismissible: false,
-        builder: (alertContext) {
-          final theme = Theme.of(alertContext);
+        builder: (_) {
+          final theme = Theme.of(context);
           return AlertDialog(
             titlePadding: const EdgeInsets.all(16),
             title: Center(
@@ -115,17 +117,14 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
                 ])),
             actions: [
               TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed:() => onNegativeButton,
                   child: Text('Tive um problema',
                       style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.red.shade800,
-                          fontWeight: FontWeight.bold))),
+                          fontWeight: FontWeight.bold,),),),
               ElevatedButton(
-                  onPressed: () {
-                    onPositiveButton();
-                  },
+                  onPressed:() => onPositiveButton
+                  ,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -136,62 +135,6 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
                   ))
             ],
           );
-        });
-  }
-
-  void showTripDialogPassagerValues(String price,String paymentsData) {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (alertContext) {
-          final theme = Theme.of(alertContext);
-          return AlertDialog(
-            titlePadding: const EdgeInsets.all(16),
-            title: Center(
-                child: Text(
-              'Viagem Finalizada',
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            )),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 14,
-              children: [
-                Text('Aguarde o Motorista Consfirmar o Pagamento',
-                 textAlign: TextAlign.center,
-                ),
-                Text('Valor da viagem:',),
-                Text('R\$ $price',style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      )),
-                 /* RichText(
-                text: TextSpan(
-                    style: theme.textTheme.labelLarge,
-                    text: ' ',
-                    children: [
-                  TextSpan(
-                      text: ' R\$ $price',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ))
-                ]),), */
-                Text("Pagamento em:"),
-                Text("$paymentsData ",
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold
-                ),
-                ),
-                Center(
-                  child: CircularProgressIndicator(color: Colors.black,),
-                )
-              ],
-            )
-          );
-        });
+        },);
   }
 }

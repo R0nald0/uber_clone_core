@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -13,6 +14,7 @@ class Usuario {
   final double latitude;
   final double longitude;
   final String? idRequisicaoAtiva; 
+  final Decimal balance;  
 
   Usuario({
     this.idUsuario,
@@ -22,6 +24,7 @@ class Usuario {
     required this.senha,
     required this.latitude,
     required this.longitude,
+    required this.balance,
     this.idRequisicaoAtiva
   });
 
@@ -36,6 +39,7 @@ class Usuario {
       'latitude': latitude,
       'longitude': longitude,
       'idRequisicaoAtiva': idRequisicaoAtiva ,
+      'balance' : balance.toString()
     };
   }
   
@@ -49,7 +53,8 @@ class Usuario {
         senha: '', 
         latitude: 0, 
         longitude: 0,
-        idRequisicaoAtiva: snapshot.get('idRequisicaoAtiva')
+        idRequisicaoAtiva: snapshot.get('idRequisicaoAtiva'),
+        balance: snapshot.get('balance')
         );
   }
   
@@ -62,29 +67,10 @@ class Usuario {
   senha = '',
   tipoUsuario = '',
   idRequisicaoAtiva = '',
+  balance = Decimal.zero,
   super();
 
-  Usuario copyWith({
-    ValueGetter<String?>? idUsuario,
-    String? email,
-    String? nome,
-    String? tipoUsuario,
-    String? senha,
-    double? latitude,
-    double? longitude,
-    String? idRequisicaoAtiva
-  }) {
-    return Usuario(
-      idUsuario: idUsuario != null ? idUsuario() : this.idUsuario,
-      email: email ?? this.email,
-      nome: nome ?? this.nome,
-      tipoUsuario: tipoUsuario ?? this.tipoUsuario,
-      senha: senha ?? this.senha,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
-      idRequisicaoAtiva:  idRequisicaoAtiva ?? this.idRequisicaoAtiva
-    );
-  }
+ 
 
   factory Usuario.fromMap(Map<String, dynamic> map) {
     return Usuario(
@@ -95,11 +81,35 @@ class Usuario {
       senha: map['senha'] ?? '',
       latitude: map['latitude']?.toDouble() ?? 0.0,
       longitude: map['longitude']?.toDouble() ?? 0.0,
-      idRequisicaoAtiva: map['idRequisicaoAtiva'] ?? ''
+      idRequisicaoAtiva: map['idRequisicaoAtiva'] ?? '',
+      balance: Decimal.tryParse(map['balance'] ?? '0.0' )  ?? Decimal.zero
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory Usuario.fromJson(String source) => Usuario.fromMap(json.decode(source));
+  Usuario copyWith({
+    ValueGetter<String?>? idUsuario,
+    String? email,
+    String? nome,
+    String? tipoUsuario,
+    String? senha,
+    double? latitude,
+    double? longitude,
+    ValueGetter<String?>? idRequisicaoAtiva,
+    Decimal? balance,
+  }) {
+    return Usuario(
+      idUsuario: idUsuario != null ? idUsuario() : this.idUsuario,
+      email: email ?? this.email,
+      nome: nome ?? this.nome,
+      tipoUsuario: tipoUsuario ?? this.tipoUsuario,
+      senha: senha ?? this.senha,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      idRequisicaoAtiva: idRequisicaoAtiva != null ? idRequisicaoAtiva() : this.idRequisicaoAtiva,
+      balance: balance ?? this.balance,
+    );
+  }
 }

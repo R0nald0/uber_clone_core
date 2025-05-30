@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uber_clone_core/src/core/exceptions/user_not_found.dart';
 import 'package:uber_clone_core/src/repository/user_repository/i_user_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
@@ -94,12 +97,26 @@ class UserRepositoryImpl implements IUserRepository {
       await docRef.update(usuario.toMap());
       return await _localStorage.write<String>(
               UberCloneConstants.KEY_PREFERENCE_USER, usuario.toJson()) ??
-              false;
+          false;
     } on FirebaseException catch (e, s) {
       const message = 'Erro ao atualizar o usuário';
       _log.erro(message, e, s);
       throw UserException(message: message);
     }
   }
-  
+
+  @override
+  Future<Usuario> findById(String id) async {
+    try {
+      final userDoc = await _database
+          .collection(UberCloneConstants.USUARiO_DATABASE_NAME)
+          .doc(id)
+          .get();
+
+      return Usuario.fromFirestore(userDoc);
+    } on Exception catch (e,s) {
+       log("Usuário não encontrado ",error: e,stackTrace:s );
+       throw UserNotFound();
+    }
+  }
 }

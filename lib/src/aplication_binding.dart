@@ -36,9 +36,12 @@ class AplicationBinding extends ApplicationBindings {
         Bind.lazySingleton<IPaymentsRepository>(
             (i) => PaymentsTypesRepositoryImpl(firestore: i())),
         Bind.lazySingleton(
-            (i) => FirebaseNotfication(notificationService: i())),
+            (i) => FirebaseNotfication()),
         Bind.lazySingleton<IPaymentService>(
-            (i) => PaymentServiceImpl(paymentsRepository: i())),
+            (i) => PaymentServiceImpl(
+              paymentsRepository: i(),
+              userRepository: i()
+              )),
         Bind.lazySingleton<IRequestRepository>((i) => RequisitionRepository(
             logger: i(), localStorage: i(), firestore: i())),
         Bind.lazySingleton<IAuthRepository>(
@@ -57,8 +60,7 @@ class AplicationBinding extends ApplicationBindings {
             log: i(),
             userRepository: i())),
         Bind.lazySingleton((i) => MapsCameraService()),
-        Bind.lazySingleton<INotificationService>(
-            (i) => ServiceNotificationImpl()),
+        //Bind.lazySingleton((i) => ServiceNotificationImpl()),
         Bind.lazySingleton<ILocationService>(
             (i) => LocationServiceImpl(locationRepositoryImpl: i(), log: i())),
         Bind.lazySingleton<IUserService>(

@@ -20,13 +20,13 @@ class RequisitionRepository implements IRequestRepository {
         _localStorage = localStorage;
 
   @override
-  Future<Requisicao> verfyActivatedRequest(String idUser) async {
+  Future<Requisicao> verfyActivatedRequest(String idRequestActive) async {
     try {
       final requisicao = await _readPrefenceData(
           UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE);
 
       if (requisicao == null) {
-        final requestActved = await findActvitesRequestById(idUser);
+        final requestActved = await findActvitesRequestById(idRequestActive);
         final isSuccess = await _saveRequisitionOnPreference(requestActved);
         if (!isSuccess) {
           throw RequestNotFound();
@@ -38,7 +38,7 @@ class RequisitionRepository implements IRequestRepository {
     } on RequestNotFound catch (e, s) {
       const message = 'Nenhuma requisição encontrado com este id';
       _logger.erro(message, e, s);
-      throw RequestNotFound();
+      rethrow;
     } on ArgumentError {
       throw RequestNotFound();
     }
@@ -53,7 +53,7 @@ class RequisitionRepository implements IRequestRepository {
       }
 
       return Requisicao.fromJson(requisicao);
-    } on Exception catch (e, s) {
+    } on ArgumentError catch (e, s) {
       log("Erro ao conveter json", error: e, stackTrace: s);
       throw ArgumentError();
     }
@@ -99,6 +99,7 @@ class RequisitionRepository implements IRequestRepository {
 
       final requisitionWithId = requisicao.copyWith(id: () => docRef.id);
       await docRef.set(requisitionWithId.toMap());
+      
       final saved = await _saveOndRequestList(requisitionWithId);
 
       if (!saved) {
@@ -200,7 +201,6 @@ class RequisitionRepository implements IRequestRepository {
           .doc(request.id!);
 
       await docRef.update(request.toMap());
-      
     } on RequestException catch (e, s) {
       const message = 'erro ao atualizar a requisiçao ativa';
       _logger.erro(message, e, s);
@@ -269,7 +269,10 @@ class RequisitionRepository implements IRequestRepository {
     } on RequestException catch (e, s) {
       _logger.erro("erro ao buscar requisição", e, s);
       throw RequestException(message: e.message);
-    }
+    } on ArgumentError catch(e,s){
+        _logger.erro("Ison inválido", e, s);
+      throw RequestException(message: e.message);
+    };
   }
 
   @override
@@ -292,11 +295,12 @@ class RequisitionRepository implements IRequestRepository {
       }
 
       return Requisicao.fromMap(snapsShot);
-    } on RequestNotFound catch (e, s) {
-      const message = 'erro ao encontrar requisiço ativa';
+    } 
+    on RequestNotFound catch (e, s) {
+      const message = 'erro ao encontrar requisição ativa';
       _logger.erro(message, e, s);
       throw RequestNotFound();
-    }on ArgumentError{
+    } on ArgumentError {
       throw RequestNotFound();
     }
   }
@@ -347,19 +351,46 @@ class RequisitionRepository implements IRequestRepository {
   @override
   Future<bool> deleteAcvitedRequest(Requisicao request) async {
     try {
-      final doc = _fireStoreDatabase
-          .collection(
-              UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
-          .doc(request.id);
-      await doc.delete();
       final isDeleted = await _localStorage
           .remove(UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE);
+
+      if (isDeleted == true) {
+        final doc = _fireStoreDatabase
+            .collection(
+                UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
+            .doc(request.id);
+        await doc.delete();
+      }
 
       return isDeleted ?? false;
     } on FirebaseException catch (e, s) {
       const message = " Erro ao deletar a requisição";
       _logger.erro(message, e, s);
       throw RequestException(message: message);
+    }
+  }
+
+  @override
+  Future<List<Requisicao>> findAllFromUser(String id) async {
+    try {
+      final QuerySnapshot(:docs) = await _fireStoreDatabase
+          .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
+          .where('motorista.idUsuario', isEqualTo: id).get();
+
+      if (docs.isEmpty) {
+        return List.empty();
+      }
+
+    return  docs.map((doc) {
+        return Requisicao.fromMap(doc.data());
+    }).toList();
+
+    } on FirebaseException catch (e, s) {
+      log('Erro ao buscar dados no firebase', error: e, stackTrace: s);
+      throw RequestException(message: 'Erro ao buscar dados do usuário');
+    } on ArgumentError catch (e, s) {
+      log('Erro ao converter json', error: e, stackTrace: s);
+      throw RequestException(message: 'Erro ao buscar dados do usuário');
     }
   }
 }

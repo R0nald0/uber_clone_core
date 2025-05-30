@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:uber_clone_core/src/repository/auth_repository/I_auth_repository.dart';
@@ -17,6 +18,7 @@ class AuthRepositoryMock extends Mock implements IAuthRepository {}
 class UberLogMock extends Mock implements IAppUberLog {}
 
 class RequestRepositoryMock extends Mock implements IRequestRepository {}
+
 void main() {
   late IUserRepository userRepository;
   late IAuthRepository authRepository;
@@ -91,6 +93,7 @@ Usuario passageiro = Usuario(
   senha: "senha123",
   latitude: -23.5515,
   longitude: -46.6344,
+  balance: Decimal.parse('150.00')
 );
 
 // Criando o objeto Usuario (motorista)
@@ -103,6 +106,7 @@ Usuario motorista = Usuario(
   senha: "senha456",
   latitude: -23.5520,
   longitude: -46.6350,
+  balance: Decimal.parse('150.00')
 );
 
 // Criando o objeto Requisicao

@@ -2,9 +2,10 @@ import 'package:uber_clone_core/uber_clone_core.dart';
 
 abstract interface class IRequistionService {
    
-   Future<Requisicao> verfyActivatedRequisition(String idUser);
+   Future<Requisicao> verfyActivatedRequisition(String idRequestActive);
 
    Future<List<Requisicao>> findActvitesTrips();
+    Future<List<Requisicao>> findAllFromUser(String id);
    Future<Requisicao> findActvitesTripsById(String idRequisicao);
    Future<String> createRequisition(Requisicao requisicao);
    Future<bool> cancelRequisition(Requisicao requisition);

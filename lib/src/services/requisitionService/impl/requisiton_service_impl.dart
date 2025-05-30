@@ -1,6 +1,7 @@
 import 'package:uber_clone_core/src/core/exceptions/request_not_found.dart';
 import 'package:uber_clone_core/src/core/exceptions/requisicao_exception.dart';
 import 'package:uber_clone_core/src/core/exceptions/user_exception.dart';
+import 'package:uber_clone_core/src/core/exceptions/user_not_found.dart';
 import 'package:uber_clone_core/src/core/logger/i_app_uber_log.dart';
 import 'package:uber_clone_core/src/model/Requisicao.dart';
 import 'package:uber_clone_core/src/repository/auth_repository/I_auth_repository.dart';
@@ -36,6 +37,9 @@ class RequisitonServiceImpl implements IRequistionService {
       _requisitionRepository.findActvitesRequest();
 
   @override
+  Future<List<Requisicao>> findAllFromUser(String id) =>
+      _requisitionRepository.findAllFromUser(id);
+  @override
   Future<Requisicao> findActvitesTripsById(String idRequisicao) =>
       _requisitionRepository.findActvitesRequestById(idRequisicao);
 
@@ -44,50 +48,58 @@ class RequisitonServiceImpl implements IRequistionService {
       _requisitionRepository.listenerRequest(idRequisicao);
 
   @override
-  Future<Requisicao> updataDataRequisition(
-      Requisicao request) async {
+  Future<Requisicao> updataDataRequisition(Requisicao request) async {
     try {
-       
       if (request.id == null) {
-        throw RequestException(message: "Erro ao atualizar requisição,id inválido");
+        throw RequestException(
+            message: "Erro ao atualizar requisição,id inválido");
       }
 
-      final isSuccess = await _requisitionRepository.updataDataRequestActiveted(request);
-     // final isSuccess = await _requisitionRepository.deleteAcvitedRequest(request);
+      final isSuccess =
+          await _requisitionRepository.updataDataRequestActiveted(request);
+      // final isSuccess = await _requisitionRepository.deleteAcvitedRequest(request);
 
       if (!isSuccess) {
         deleteAcvitedRequest(request);
         throw RequestException(message: 'Erro ao atualizar dados da viagem');
       }
       return await _requisitionRepository.findActvitesRequestById(request.id!);
-    }on RequestNotFound{
+    } on RequestNotFound {
       rethrow;
-    }
-     on RequestException {
+    } on RequestException {
       rethrow;
     }
   }
 
   @override
-  Future<Requisicao> verfyActivatedRequisition(String idUser) =>
-      _requisitionRepository.verfyActivatedRequest(idUser);
+  Future<Requisicao> verfyActivatedRequisition(String idRequestActive) async {
+    try {
+      return  await _requisitionRepository.verfyActivatedRequest(idRequestActive);
+    } on RequestNotFound {
+     // await _updateUserWhenRequestNotFound();
+      rethrow;
+    }on RequestException {
+        rethrow;
+    }
+  }
+
+  Future<void> _updateUserWhenRequestNotFound() async {
+     final id = _authRepository.getIdCurrenteUserUser();
+    if (id == null) {
+      throw UserNotFound();
+    }
+    
+    final user = await _userRepository.getDataUserOn(id);
+    final userUpdated = user?.copyWith(idRequisicaoAtiva: () => "");
+    if (userUpdated == null) {
+      throw UserNotFound();
+    }
+    _userRepository.updateUser(userUpdated);
+  }
 
   @override
   Stream<List<Requisicao>> findAndObserverTrips() =>
       _requisitionRepository.findAndObserverRequest();
-
-  Future<bool> saveRequisitionOnPreference(Requisicao requisition) async {
-    /* final isSaved =  await _requisitionRepository.saveRequisitionOnPreference(requisition);
-    if ( isSaved == false) {
-        if (requisition.passageiro.idUsuario == null) {
-           return false;
-        }
-       final request = await _requisitionRepository.findActvitesTripsById(requisition.passageiro.idUsuario!);
-       return  await _requisitionRepository.saveRequisitionOnPreference(request);
-    }
-    return isSaved; */
-    return false;
-  }
 
   @override
   Future<void> updateDataTripOn(Requisicao request) =>
@@ -120,15 +132,14 @@ class RequisitonServiceImpl implements IRequistionService {
       if (user == null) {
         throw UserException(message: "erro ao atualizar Dados do usuario");
       }
-      final userUpdated = user.copyWith(idRequisicaoAtiva: "");
+      final userUpdated = user.copyWith(idRequisicaoAtiva: () => '');
 
       return _userRepository.updateUser(userUpdated);
-      
     } on UserException catch (e, s) {
       _log.erro("erro ao atualizar dados do usario", e, s);
       throw UserException(message: e.message);
-    } on RequestException catch(e,s){
-       _log.erro("erro ao atualizar dados do usario", e, s);
+    } on RequestException catch (e, s) {
+      _log.erro("erro ao atualizar dados do usario", e, s);
       throw RequestException(message: "erro ao atualizar dados do usario");
     }
   }

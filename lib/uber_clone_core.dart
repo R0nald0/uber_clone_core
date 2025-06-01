@@ -7,6 +7,7 @@ export 'src/core/exceptions/addres_exception.dart';
 export 'src/core/exceptions/repository_exception.dart';
 export 'src/core/exceptions/auth_exception.dart';
 export 'src/core/exceptions/payment_type_not_found.dart';
+export 'src/core/exceptions/payment_exception.dart';
 export 'src/core/exceptions/requisicao_exception.dart';
 export 'src/core/exceptions/user_exception.dart';
 export 'src/core/exceptions/user_not_found.dart';
@@ -43,7 +44,9 @@ export 'src/core/logger/i_app_uber_log.dart';
 export 'src/core/location/location_controller.dart';
 
 export 'src/util/request_state.dart';
-export 'src/util/extension_date.dart';
+export 'src/core/extension/extension_date.dart';
+export 'src/core/extension/extension_string.dart';
+
 
 
 export 'src/uber_clone_core_config.dart';

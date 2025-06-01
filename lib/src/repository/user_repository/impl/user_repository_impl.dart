@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uber_clone_core/src/core/exceptions/user_not_found.dart';
 import 'package:uber_clone_core/src/repository/user_repository/i_user_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
@@ -112,9 +111,13 @@ class UserRepositoryImpl implements IUserRepository {
           .collection(UberCloneConstants.USUARiO_DATABASE_NAME)
           .doc(id)
           .get();
+       
+      if (!userDoc.exists) {
+          throw UserNotFound();
+      }
 
-      return Usuario.fromFirestore(userDoc);
-    } on Exception catch (e,s) {
+      return Usuario.fromMap(userDoc.data()!);
+    } on UserNotFound catch (e,s) {
        log("Usuário não encontrado ",error: e,stackTrace:s );
        throw UserNotFound();
     }

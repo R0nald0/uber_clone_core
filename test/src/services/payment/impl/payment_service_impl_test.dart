@@ -1,20 +1,17 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:uber_clone_core/src/core/exceptions/payment_exception.dart';
-import 'package:uber_clone_core/src/core/exceptions/user_not_found.dart';
-import 'package:uber_clone_core/src/model/payment_type.dart';
-import 'package:uber_clone_core/src/model/usuario.dart';
 import 'package:uber_clone_core/src/repository/payments_repository/i_payments_repository.dart';
 import 'package:uber_clone_core/src/repository/user_repository/i_user_repository.dart';
-import 'package:uber_clone_core/src/services/payment/i_payment_service.dart';
 import 'package:uber_clone_core/src/services/payment/impl/payment_service_impl.dart';
+import 'package:uber_clone_core/uber_clone_core.dart';
 
 import '../../../objetc_to_use.dart';
 
 
 class MockRepositoryUserRepository extends Mock implements IUserRepository{} 
 class MockPaymentRepository extends Mock implements IPaymentsRepository{}
+class  MockLogger extends Mock implements IAppUberLog{}
 
 
 
@@ -22,14 +19,17 @@ void main() {
    late MockRepositoryUserRepository mockRepositoryUserRepository ;
    late MockPaymentRepository mockPaymentRepository;
    late IPaymentService paymentService;
+   late MockLogger mockLogger;
    
   setUp((){
     mockRepositoryUserRepository = MockRepositoryUserRepository();
     mockPaymentRepository =MockPaymentRepository();
-    
+    mockLogger = MockLogger();
     paymentService = PaymentServiceImpl(
       paymentsRepository: mockPaymentRepository, 
-      userRepository: mockRepositoryUserRepository) ;
+      userRepository: mockRepositoryUserRepository,
+      logger: mockLogger
+      ) ;
   });
   
   setUpAll(() {
@@ -40,17 +40,15 @@ void main() {
     
     test('startPaymentTrip,should make the payment for the trip and return true ', () async{
         
-       
-       when(() => mockRepositoryUserRepository.getDataUserOn(any())).thenAnswer((_) async => usuario1);
-       when(() => mockRepositoryUserRepository.findById(any())).thenAnswer((_) async => usuario2);
-
+       when(() => mockRepositoryUserRepository.getDataUserOn(any())).thenAnswer((_) async => usuario2);
+       when(() => mockRepositoryUserRepository.findById(any())).thenAnswer((_) async => usuario1);
        when(() => mockRepositoryUserRepository.updateUser(any())).thenAnswer((_) async => true);
       
         final data = (
          paymentType : PaymentType(id: 1, type: 'PIX'), 
           recipientId : usuario2.idUsuario! ,
           senderId : usuario1.idUsuario! ,
-          value: Decimal.parse('30.00')
+          value: '30,00'
         );
         
         final result = await paymentService.startPaymentTrip(data);
@@ -66,7 +64,7 @@ void main() {
          paymentType : PaymentType(id: 1, type: 'PIX'), 
           recipientId : usuario2.idUsuario! ,
           senderId : usuario1.idUsuario! ,
-          value: Decimal.parse('30.00')
+          value:'30.00'
         );
         
         expect(()async => await paymentService.startPaymentTrip(data),throwsA(isA<UserNotFound>()));
@@ -75,8 +73,8 @@ void main() {
     });
 
     test('startPaymentTrip,should throw  PaymentExceptiom if balance zero or insufficient ', () async{
-       final useUp1  = usuario2.copyWith(balance: Decimal.zero);
-      final useUp2  = usuario2.copyWith(balance: Decimal.tryParse('30.0')); 
+       final useUp1  = usuario2.copyWith(balance: Decimal.parse('29.99'));
+      //final useUp2  = usuario2.copyWith(balance: Decimal.tryParse('30.0')); 
 
        when(() => mockRepositoryUserRepository.getDataUserOn(any())).thenAnswer((_) async => useUp1);
        when(() => mockRepositoryUserRepository.findById(any())).thenAnswer((_) async => usuario2);
@@ -85,7 +83,7 @@ void main() {
          paymentType : PaymentType(id: 1, type: 'PIX'), 
           recipientId : usuario2.idUsuario! ,
           senderId : useUp1.idUsuario! ,
-          value: Decimal.parse('30.00')
+          value: '30.00'
         );
         
         expect(()async => await paymentService.startPaymentTrip(data),throwsA(isA<PaymentException>()));

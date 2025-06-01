@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
 abstract interface class IPaymentService {
@@ -7,7 +6,7 @@ abstract interface class IPaymentService {
 
   Future<bool> startPaymentTrip(({
         PaymentType paymentType,
-        Decimal value,
+        String value,
         String senderId,
         String recipientId
       }) data);

@@ -19,7 +19,6 @@ import 'package:uber_clone_core/src/repository/user_repository/impl/user_reposit
 import 'package:uber_clone_core/src/services/adress_service/impl/addres_service.dart';
 import 'package:uber_clone_core/src/services/authservice/auth_service_impl.dart';
 import 'package:uber_clone_core/src/services/location_service/location_service_impl.dart';
-import 'package:uber_clone_core/src/services/notification_service/impl/service_notification_impl.dart';
 import 'package:uber_clone_core/src/services/payment/impl/payment_service_impl.dart';
 import 'package:uber_clone_core/src/services/requisitionService/impl/requisiton_service_impl.dart';
 import 'package:uber_clone_core/src/services/trip_service/trip_service.dart';
@@ -40,7 +39,8 @@ class AplicationBinding extends ApplicationBindings {
         Bind.lazySingleton<IPaymentService>(
             (i) => PaymentServiceImpl(
               paymentsRepository: i(),
-              userRepository: i()
+              userRepository: i(),
+              logger: i()
               )),
         Bind.lazySingleton<IRequestRepository>((i) => RequisitionRepository(
             logger: i(), localStorage: i(), firestore: i())),

@@ -116,10 +116,6 @@ class RequisitionRepository implements IRequestRepository {
       _logger.erro(message, e, s);
       throw RequestException(message: e.message);
     }
-
-    //salvar dados da requisicao activa
-    // _salvarRequisicaoAtiva(_idRequisicao, idUser);
-    // _listenerRequisicao(_idRequisicao);
   }
 
   @override
@@ -272,7 +268,7 @@ class RequisitionRepository implements IRequestRepository {
     } on ArgumentError catch(e,s){
         _logger.erro("Ison inválido", e, s);
       throw RequestException(message: e.message);
-    };
+    }
   }
 
   @override
@@ -386,10 +382,14 @@ class RequisitionRepository implements IRequestRepository {
     }).toList();
 
     } on FirebaseException catch (e, s) {
-      log('Erro ao buscar dados no firebase', error: e, stackTrace: s);
+      _logger.erro('Erro ao buscar dados no firebase',  e,  s);
       throw RequestException(message: 'Erro ao buscar dados do usuário');
-    } on ArgumentError catch (e, s) {
-      log('Erro ao converter json', error: e, stackTrace: s);
+    } on FormatException catch(e,s){
+      _logger.erro('Erro ao formatar valores',e,s);
+      throw  RequestException(message: 'Erro ao formatar dados');
+    } 
+    on ArgumentError catch (e, s) {
+      _logger.erro('Erro ao converter json', e, s);
       throw RequestException(message: 'Erro ao buscar dados do usuário');
     }
   }

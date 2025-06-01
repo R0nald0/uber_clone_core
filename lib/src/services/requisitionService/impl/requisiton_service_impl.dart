@@ -57,7 +57,6 @@ class RequisitonServiceImpl implements IRequistionService {
 
       final isSuccess =
           await _requisitionRepository.updataDataRequestActiveted(request);
-      // final isSuccess = await _requisitionRepository.deleteAcvitedRequest(request);
 
       if (!isSuccess) {
         deleteAcvitedRequest(request);
@@ -76,7 +75,7 @@ class RequisitonServiceImpl implements IRequistionService {
     try {
       return  await _requisitionRepository.verfyActivatedRequest(idRequestActive);
     } on RequestNotFound {
-     // await _updateUserWhenRequestNotFound();
+      await _updateUserWhenRequestNotFound();
       rethrow;
     }on RequestException {
         rethrow;
@@ -126,15 +125,12 @@ class RequisitonServiceImpl implements IRequistionService {
       if (idUser == null) {
         throw UserException(message: "erro ao atualizar Dados do usuario");
       }
+      
+     final user = await _userRepository.findById(idUser);
+     final userUpdated = user.copyWith(idRequisicaoAtiva: () => '');
 
-      final user = await _userRepository.getDataUserOn(idUser);
-
-      if (user == null) {
-        throw UserException(message: "erro ao atualizar Dados do usuario");
-      }
-      final userUpdated = user.copyWith(idRequisicaoAtiva: () => '');
-
-      return _userRepository.updateUser(userUpdated);
+      return await _userRepository.updateUser(userUpdated);
+      
     } on UserException catch (e, s) {
       _log.erro("erro ao atualizar dados do usario", e, s);
       throw UserException(message: e.message);

@@ -18,6 +18,7 @@ class AuthRepositoryMock extends Mock implements IAuthRepository {}
 class UberLogMock extends Mock implements IAppUberLog {}
 
 class RequestRepositoryMock extends Mock implements IRequestRepository {}
+class MyUsuario extends Fake implements Usuario {}
 
 void main() {
   late IUserRepository userRepository;
@@ -40,10 +41,12 @@ void main() {
     );
   });
 
+
+  setUpAll(() {
+    registerFallbackValue(passageiro);
+  });
+
   group('update requistion test', () {
-
-
-    
     test(
         "given a logintude and latitude,when updatePositionRealTime isExecuted,it should return request with position updated",
         () {});
@@ -66,7 +69,22 @@ void main() {
   });
 
   group('delete test gruop', () {
-    test('when', () {});
+
+    test('deleteAcvitedRequest,should delete actveted request e retur true', () async{
+
+     when(() => requestRepository.deleteAcvitedRequest(requisicao)).thenAnswer((_) async => true);
+      when(() =>  authRepository.verifyStateUserLogged()).thenAnswer((_) async=> passageiro.idUsuario!);
+      when(()=> userRepository.findById(passageiro.idUsuario!)).thenAnswer((_) async => passageiro );
+      when(() => userRepository.updateUser(any()),).thenAnswer((_) async => true); 
+
+      final result = await requisitionServiceImpl.deleteAcvitedRequest(requisicao);
+
+      expect(result, isTrue);
+      verify(() => requestRepository.deleteAcvitedRequest(requisicao),).called(1);
+      verify(() => authRepository.verifyStateUserLogged(),).called(1);
+      verify(() => userRepository.findById(passageiro.idUsuario!)).called(1);
+      verify(() => userRepository.updateUser(any())).called(1);
+    });
   });
 }
 
@@ -117,5 +135,6 @@ Requisicao requisicaoAtualizada = Requisicao(
   passageiro: passageiro,
   status: RequestState.em_viagem,
   motorista: null,
+  requestDate: DateTime.now(),
   valorCorrida: "25.50",
 );

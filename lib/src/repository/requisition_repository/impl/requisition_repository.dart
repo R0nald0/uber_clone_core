@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uber_clone_core/src/core/offline_database/database_off_line.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/i_requisition_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
@@ -10,13 +11,16 @@ class RequisitionRepository implements IRequestRepository {
   final FirebaseFirestore _fireStoreDatabase;
   final LocalStorage _localStorage;
   final IAppUberLog _logger;
+  final DatabaseOffLine _uberDatabaseOffline;
 
   RequisitionRepository(
       {required FirebaseFirestore firestore,
       required IAppUberLog logger,
+      required DatabaseOffLine uberDatabaseOffline,
       required LocalStorage localStorage})
       : _fireStoreDatabase = firestore,
         _logger = logger,
+        _uberDatabaseOffline = uberDatabaseOffline,
         _localStorage = localStorage;
 
   @override
@@ -89,6 +93,30 @@ class RequisitionRepository implements IRequestRepository {
     }
   }
 
+  Future<bool> _saveRequisitionOnDatabaseLocal(Requisicao request) async {
+    try {
+      const tbName = UberCloneConstants.databasOfflineTableRequest;
+      const query =
+          'INSERT INTO $tbName(id,bairro,valorCorrida,status,passageiroNome,motoristaNome,request_date,payment_type)  VALUES(?,?,?,?,?,?,?,?)';
+      final arguments = [
+        request.id,
+        request.destino.bairro,
+        double.parse(request.valorCorrida.changeCommaToDot()),
+        request.status.name,
+        request.passageiro.nome,
+        request.motorista?.nome ?? '',
+        request.requestDate.toIso8601String(),
+        request.paymentType.type
+      ];
+
+      final linesAfecteds = await _uberDatabaseOffline.save(query, arguments);
+      return linesAfecteds != 0 ? true : false;
+    } on DatabaseException catch (e, s) {
+      _logger.erro("Erro ao salvdar dado localmente", e, s);
+      throw RequestException(message: "Erro ao salvar dados localmente");
+    }
+  }
+
   @override
   Future<String> createRequestActive(Requisicao requisicao) async {
     try {
@@ -99,7 +127,7 @@ class RequisitionRepository implements IRequestRepository {
 
       final requisitionWithId = requisicao.copyWith(id: () => docRef.id);
       await docRef.set(requisitionWithId.toMap());
-      
+
       final saved = await _saveOndRequestList(requisitionWithId);
 
       if (!saved) {
@@ -124,7 +152,7 @@ class RequisitionRepository implements IRequestRepository {
         .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
         .doc(requisition.id)
         .update({"status": RequestState.cancelado.value}).then((_) async {
-      return true;
+         return true;
     }, onError: (e) {
       _logger.erro("Erro ao atualizar requsição");
       return false;
@@ -147,7 +175,7 @@ class RequisitionRepository implements IRequestRepository {
       if (isRemoved == null || isRemoved == false) {
         return false;
       }
-
+      _saveRequisitionOnDatabaseLocal(requisition);
       return true;
     }, onError: (e) {
       _logger.erro("Erro ao cancelar requsição");
@@ -265,8 +293,8 @@ class RequisitionRepository implements IRequestRepository {
     } on RequestException catch (e, s) {
       _logger.erro("erro ao buscar requisição", e, s);
       throw RequestException(message: e.message);
-    } on ArgumentError catch(e,s){
-        _logger.erro("Ison inválido", e, s);
+    } on ArgumentError catch (e, s) {
+      _logger.erro("Ison inválido", e, s);
       throw RequestException(message: e.message);
     }
   }
@@ -291,8 +319,7 @@ class RequisitionRepository implements IRequestRepository {
       }
 
       return Requisicao.fromMap(snapsShot);
-    } 
-    on RequestNotFound catch (e, s) {
+    } on RequestNotFound catch (e, s) {
       const message = 'erro ao encontrar requisição ativa';
       _logger.erro(message, e, s);
       throw RequestNotFound();
@@ -350,12 +377,13 @@ class RequisitionRepository implements IRequestRepository {
       final isDeleted = await _localStorage
           .remove(UberCloneConstants.KEY_PREFERENCE_REQUISITION_ACTIVE);
 
-      if (isDeleted == true) {
+      if (isDeleted ?? true) {
         final doc = _fireStoreDatabase
             .collection(
                 UberCloneConstants.REQUISITION_FIRESTORE_ACTIVE_DATABASE_NAME)
             .doc(request.id);
         await doc.delete();
+        await _saveRequisitionOnDatabaseLocal(request);
       }
 
       return isDeleted ?? false;
@@ -369,26 +397,38 @@ class RequisitionRepository implements IRequestRepository {
   @override
   Future<List<Requisicao>> findAllFromUser(String id) async {
     try {
-      final QuerySnapshot(:docs) = await _fireStoreDatabase
+       
+    final requests  =  await _uberDatabaseOffline.findAllData(UberCloneConstants.databasOfflineTableRequest);
+
+     if (requests.isNotEmpty) {
+       return  requests.map( (re) => Requisicao.fromDbMap(re)).toList();
+     }  
+    
+    final QuerySnapshot(:docs) = await _fireStoreDatabase
           .collection(UberCloneConstants.REQUISITION_FIRESTORE_DATABASE_NAME)
-          .where('motorista.idUsuario', isEqualTo: id).get();
+          .where('motorista.idUsuario', isEqualTo: id)
+          .get();
 
       if (docs.isEmpty) {
         return List.empty();
       }
-
-    return  docs.map((doc) {
+      final requestsFroFireStore = docs.map<Requisicao>((doc) {
         return Requisicao.fromMap(doc.data());
-    }).toList();
+      }).toList();
+       
+       for (var req in requestsFroFireStore) {
+         await _saveRequisitionOnDatabaseLocal(req) ;
+      } 
+      
 
+      return requestsFroFireStore ;
     } on FirebaseException catch (e, s) {
-      _logger.erro('Erro ao buscar dados no firebase',  e,  s);
+      _logger.erro('Erro ao buscar dados no firebase', e, s);
       throw RequestException(message: 'Erro ao buscar dados do usuário');
-    } on FormatException catch(e,s){
-      _logger.erro('Erro ao formatar valores',e,s);
-      throw  RequestException(message: 'Erro ao formatar dados');
-    } 
-    on ArgumentError catch (e, s) {
+    } on FormatException catch (e, s) {
+      _logger.erro('Erro ao formatar valores', e, s);
+      throw RequestException(message: 'Erro ao formatar dados');
+    } on ArgumentError catch (e, s) {
       _logger.erro('Erro ao converter json', e, s);
       throw RequestException(message: 'Erro ao buscar dados do usuário');
     }

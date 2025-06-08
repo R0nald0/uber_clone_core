@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class PaymentType {
    final int id;
   final String type;
@@ -43,4 +42,14 @@ class PaymentType {
 
   String toJson() => json.encode(toMap());
 
+
+  PaymentType copyWith({
+    int? id,
+    String? type,
+  }) {
+    return PaymentType(
+      id: id ?? this.id,
+      type: type ?? this.type,
+    );
+  }
 }

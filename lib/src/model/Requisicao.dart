@@ -6,7 +6,6 @@ import 'package:uber_clone_core/src/model/addres.dart';
 import 'package:uber_clone_core/src/model/payment_type.dart';
 import 'package:uber_clone_core/src/util/request_state.dart';
 
-
 import 'usuario.dart';
 
 class Requisicao {
@@ -110,6 +109,31 @@ class Requisicao {
     };
   }
 
+  factory Requisicao.fromDbMap(Map<String, Object?> map){
+     return switch(map) {{
+          'id' : final String id,
+          'bairro' : final String bairro ,
+          'status' : final String status,
+          'valorCorrida': final double valorCorrida,
+          'passageiroNome' : final String passageiroNome,
+          'motoristaNome' : final String motoristaNome,
+          'request_date' : final String requestDate,
+          'payment_type' : final String paymentType 
+          }   
+          => Requisicao(
+             id: id,
+             destino: Address.emptyAddres().copyWith(bairo: bairro),
+             passageiro: Usuario.emptyUser().copyWith(nome: passageiroNome),
+             paymentType: PaymentType.empty().copyWith(type: paymentType ),
+             motorista: Usuario.emptyUser().copyWith(nome: motoristaNome),
+             requestDate: DateTime.tryParse(requestDate) ?? DateTime.now(),
+             valorCorrida: valorCorrida.toStringAsFixed(2),
+             status: RequestState.findByName(status)
+          ),
+          _ => throw ArgumentError('Argument Error')
+     } ;
+   
+  }
   factory Requisicao.fromMap(Map<String, dynamic> map) {
    
     return switch (map) {
@@ -127,7 +151,7 @@ class Requisicao {
             id: id,
             destino: Address.fromMap(destino),
             passageiro: Usuario.fromMap(passageiro),
-            status: RequestState.nao_chamado.findByName(status),
+            status: RequestState.findByName(status),
             paymentType: PaymentType.fromMap(paymentType),
             motorista: motorista != null ? Usuario.fromMap(motorista) : null,
             valorCorrida: valorCorrida,

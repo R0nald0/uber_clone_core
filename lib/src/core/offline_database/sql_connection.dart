@@ -54,15 +54,14 @@ class SqlConnection {
   }
 
   FutureOr<void> onCreate(Database db, version) async {
-    final batch = db.batch();
+    final batch = db.batch(); 
+    
     final migrations = MigrationsFactory().getCreateMigration();
     for (var migration in migrations) {
       migration.create(batch);
     }
-
      batch.commit();
   }
-
   void closeConnection() {
     _db?.close();
     _db = null;

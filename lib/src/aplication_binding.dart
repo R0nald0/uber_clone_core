@@ -43,7 +43,7 @@ class AplicationBinding extends ApplicationBindings {
               logger: i()
               )),
         Bind.lazySingleton<IRequestRepository>((i) => RequisitionRepository(
-            logger: i(), localStorage: i(), firestore: i())),
+            logger: i(), localStorage: i(), firestore: i(),uberDatabaseOffline: i()),),
         Bind.lazySingleton<IAuthRepository>(
             (i) => AuthRepositoryImpl(database: i(), logger: i())),
         Bind.lazySingleton<IUserRepository>((i) =>

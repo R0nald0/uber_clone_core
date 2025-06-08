@@ -1,16 +1,14 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uber_clone_core/src/core/exceptions/user_exception.dart';
-import 'package:uber_clone_core/src/core/logger/i_app_uber_log.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uber_clone_core/src/core/offline_database/database_off_line.dart';
 import 'package:uber_clone_core/src/repository/auth_repository/I_auth_repository.dart';
+import 'package:uber_clone_core/uber_clone_core.dart';
 
 class AuthRepositoryImpl implements IAuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   final IAppUberLog _log;
-
   final DatabaseOffLine _database;
 
   AuthRepositoryImpl(
@@ -20,7 +18,6 @@ class AuthRepositoryImpl implements IAuthRepository {
 
   @override
   Future<String?> verifyStateUserLogged() async {
-    
     final userCompleter = Completer<String?>();
     _auth.authStateChanges().listen((user) {
       if (user != null) {
@@ -38,7 +35,7 @@ class AuthRepositoryImpl implements IAuthRepository {
       final user = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       if (user.user == null) {
-         throw UserException(message: "Erro ao logar o usuario");
+        throw UserException(message: "Erro ao logar o usuario");
       }
 
       return user.user?.uid;
@@ -64,20 +61,17 @@ class AuthRepositoryImpl implements IAuthRepository {
               'Falha,ao conectear com o serviço,verifique sua conexão', e, s);
         default:
           _throwErrorState(
-              "Erro desconhecido entre em contato com o suporte", e, s
-            );
+              "Erro desconhecido entre em contato com o suporte", e, s);
       }
-
-      
     }
     return null;
   }
 
   @override
-  Future<String?> register(
-      String name, String email, String password) async {
+  Future<String?> register(String name, String email, String password) async {
     try {
-      final userCredencial = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      final userCredencial = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
       if (userCredencial.user != null) {
         //  Usuario(email: email,nome: name,tipoUsuario: tipoUsuario,idUsuario: )
         return userCredencial.user?.uid;
@@ -110,7 +104,22 @@ class AuthRepositoryImpl implements IAuthRepository {
   String? getIdCurrenteUserUser() => _auth.currentUser!.uid;
 
   @override
-  Future<void> logout() => _auth.signOut();
+  Future<void> logout() async {
+    try {
+  final tasks  = await Future.wait(
+       eagerError: true,
+       [
+        _database.clearTable(UberCloneConstants.databasOfflineTableRequest),
+        _database.clearTable(UberCloneConstants.databasOfflineTableAdress),
+        _database.clearTable('usuario'),
+      ]);
+   
+      _auth.signOut();
+    } on DatabaseException catch (e, s) {
+      _log.erro('Erroa os remover dados do banco de dados', e, s);
+      throw AuthException(message: 'Erro ao limpar dados do usuario');
+    }
+  }
 
   Never _throwErrorState(String message, dynamic e, StackTrace s) {
     _log.erro(message, e, s);

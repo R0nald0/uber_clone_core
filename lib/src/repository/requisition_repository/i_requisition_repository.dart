@@ -15,7 +15,6 @@ abstract class IRequestRepository {
   Future<bool> updataDataRequestActiveted(Requisicao request);
   Future<void> updateUserPositionRequestActiveted(Requisicao request);
  
-
   Future<void> delete(Requisicao request);
   Future<bool> deleteAcvitedRequest(Requisicao request);
 }

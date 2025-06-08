@@ -1,4 +1,5 @@
 import 'package:uber_clone_core/src/constants/uber_clone_constants.dart';
+import 'package:uber_clone_core/src/core/exceptions/auth_exception.dart';
 import 'package:uber_clone_core/src/core/exceptions/user_exception.dart';
 import 'package:uber_clone_core/src/core/local_storage/local_storage.dart';
 import 'package:uber_clone_core/src/core/logger/i_app_uber_log.dart';
@@ -82,7 +83,12 @@ class AuthServiceImpl implements IAuthService {
       }
        _authRepository.logout();
       return isRemoved;
-    } on UserException catch (e, s) {
+    } on AuthException  catch(e,s){
+        const message = 'Erro ao remover dados do usúario';
+      _log.erro(message, e, s);
+      throw UserException(message: e.message);
+    }
+    on UserException catch (e, s) {
       const message = 'Erro ao remover dados do usúario';
       _log.erro(message, e, s);
       throw UserException(message: message);

@@ -11,6 +11,7 @@ class UberCloneConstants {
   static const REQUISITION_DATABASE_NAME = 'requisicao';
   // ignore: constant_identifier_names
   static const REQUISITION_ACTIVE_DATABASE_NAME = 'requisicao-ativa';
+  static const databaseOfflineTableNameRequest = 'request';
   // ignore: constant_identifier_names
   static const TIPO_USUARIO_PASSAGEIRO="passageiro";
   static const LOTTI_ASSET_FIND_DRIVER="images/animations/find_driver.json";

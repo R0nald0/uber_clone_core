@@ -2,12 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:uber_clone_core/src/core/offline_database/database_off_line.dart';
 import 'package:uber_clone_core/src/repository/requisition_repository/impl/requisition_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
+import '../../../objetc_to_use.dart';
 import '../../user_repository/impl/user_repository_impl_test.dart';
 
 class MockLocalfireStore extends Mock implements FirebaseFirestore {}
+
+class MockDatabaseOffline extends Mock implements DatabaseOffLine {}
 
 class MockStreamRequisition extends Mock
     implements Stream<DocumentSnapshot<Map<String, dynamic>>> {}
@@ -39,6 +43,7 @@ class MockRquest extends Mock implements Requisicao {}
 class MockLog extends Mock implements IAppUberLog {}
 
 void main() {
+  late MockDatabaseOffline mockDatabaseOffline;
   late MockCollectionReference mockCollection;
   late MockDocumentReference mockDocument;
   late MockDocumentSnapshot mockSnapshot;
@@ -53,6 +58,7 @@ void main() {
   late RequisitionRepository requisitionReposiory;
 
   setUp(() {
+    mockDatabaseOffline = MockDatabaseOffline();
     mockRquest = MockRquest();
     mockCollection = MockCollectionReference();
     mockDocument = MockDocumentReference();
@@ -69,12 +75,22 @@ void main() {
     requisitionReposiory = RequisitionRepository(
         logger: logMock,
         localStorage: localStorageMock,
-        firestore: fireStoreMock);
+        firestore: fireStoreMock,
+        uberDatabaseOffline: mockDatabaseOffline);
   });
 
   group('Find requests', () {
+    test('findAllFromUser,should return data in DataBase offline', () async {
+      when(() => mockDatabaseOffline.findAllData(any()))
+          .thenAnswer((_) async => ObjetcToUse.mapRequest);
+      final result = await requisitionReposiory.findAllFromUser('2');
+      expect(result, isNotEmpty);
+    });
 
     test("findAllFromUser,should find all request by id user", () async {
+      when(
+        () => mockDatabaseOffline.findAllData(any()),
+      ).thenAnswer((_) async => List.empty());
       when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
       when(() =>
               mockCollection.where(any(), isEqualTo: any(named: 'isEqualTo')))
@@ -82,6 +98,10 @@ void main() {
       when(() => mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
       when(() => mockQuerySnapshot.docs)
           .thenReturn([mockQueryDocumentSnapshot]);
+
+      when(
+        () => mockDatabaseOffline.save(any(), any()),
+      ).thenAnswer((_) async => 1);
       when(
         () => mockQueryDocumentSnapshot.data(),
       ).thenReturn(requisicao.toMap());
@@ -97,7 +117,11 @@ void main() {
       verify(() => mockQuerySnapshot.docs).called(1);
     });
 
-    test('findAllFromUser,should return empty list when not found data', () async {
+    test('findAllFromUser,should return empty list when not found data',
+        () async {
+      when(
+        () => mockDatabaseOffline.findAllData(any()),
+      ).thenAnswer((_) async => List.empty());
       when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
       when(() =>
               mockCollection.where(any(), isEqualTo: any(named: 'isEqualTo')))
@@ -108,19 +132,30 @@ void main() {
       final result = await requisitionReposiory.findAllFromUser('123');
       expect(result, isEmpty);
     });
-    test('findAllFromUser,launch RequestException when FirebaseExcpetion', () async {
-    when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
-    when(() => mockCollection.where(any(), isEqualTo: any(named: 'isEqualTo'))).thenReturn(mockQuery);
-    when(() => mockQuery.get()).thenThrow(FirebaseException(plugin: 'firestore', message: 'Erro'));
+    test('findAllFromUser,launch RequestException when FirebaseExcpetion',
+        () async {
+      when(
+        () => mockDatabaseOffline.findAllData(any()),
+      ).thenAnswer((_) async => List.empty());
+      when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
+      when(() =>
+              mockCollection.where(any(), isEqualTo: any(named: 'isEqualTo')))
+          .thenReturn(mockQuery);
+      when(() => mockQuery.get())
+          .thenThrow(FirebaseException(plugin: 'firestore', message: 'Erro'));
 
-    expect(
-      () => requisitionReposiory.findAllFromUser('123'),
-      throwsA(isA<RequestException>()),
-    );
-  });
+      expect(
+        () => requisitionReposiory.findAllFromUser('123'),
+        throwsA(isA<RequestException>()),
+      );
+    });
 
-  test('findAllFromUser,launch RequestException when ArgumentError', () async {
-    when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
+    test('findAllFromUser,launch RequestException when ArgumentError',
+        () async {
+      when(
+        () => mockDatabaseOffline.findAllData(any()),
+      ).thenAnswer((_) async => List.empty());
+      when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
       when(() =>
               mockCollection.where(any(), isEqualTo: any(named: 'isEqualTo')))
           .thenReturn(mockQuery);
@@ -129,13 +164,13 @@ void main() {
           .thenReturn([mockQueryDocumentSnapshot]);
       when(
         () => mockQueryDocumentSnapshot.data(),
-      ).thenReturn({'t':"a"});
+      ).thenReturn({'t': "a"});
 
-    expect(
-      () => requisitionReposiory.findAllFromUser('123'),
-      throwsA(isA<RequestException>()),
-    );
-  });
+      expect(
+        () => requisitionReposiory.findAllFromUser('123'),
+        throwsA(isA<RequestException>()),
+      );
+    });
   });
   group('verfyActivatedRequisition', () {
     test(
@@ -285,7 +320,7 @@ void main() {
 
   group('delete requisition', () {
     test(
-        'Given a requisition ,whem delete is executed ,it should remove requisio on firebae',
+        'Given a requisition ,whem delete is executed ,it should remove request on firebae',
         () async {
       when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
       when(() => mockCollection.doc(any())).thenReturn(mockDocument);
@@ -318,68 +353,51 @@ void main() {
       when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
       when(() => mockCollection.doc(any())).thenReturn(mockDocument);
       when(() => mockDocument.delete()).thenAnswer((_) => Future<void>.value());
+      when(() => mockDatabaseOffline.save(any(), any())).thenAnswer((_) async => 1);
       when(() => localStorageMock.remove(any())).thenAnswer((_) async => true);
 
-      final result =
-          await requisitionReposiory.deleteAcvitedRequest(requisicao);
+      final result = await requisitionReposiory.deleteAcvitedRequest(requisicao);
 
       expect(result, isTrue);
       verify(() => fireStoreMock.collection(any())).called(1);
       verify(() => mockCollection.doc(any())).called(1);
-
+      verify(() => mockDatabaseOffline.save(any(),any())).called(1);
       verify(() => mockDocument.delete()).called(1);
       verify(() => localStorageMock.remove(any())).called(1);
     });
 
-    test(
-        'Given a invalid requisition ,whem deleteAcvitedReuest is executed ,it should return false',
+    test('Given a invalid requisition ,when deleteAcvitedRequest is executed ,it should return false',
         () async {
+      when(() => localStorageMock.remove(any())).thenAnswer((_) async => false);
       when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
       when(() => mockCollection.doc(any())).thenReturn(mockDocument);
       when(() => mockDocument.delete()).thenAnswer((_) => Future<void>.value());
-      when(() => localStorageMock.remove(any())).thenAnswer((_) async => false);
 
       final result =
           await requisitionReposiory.deleteAcvitedRequest(requisicao);
 
       expect(result, isFalse);
-      verify(() => fireStoreMock.collection(any())).called(1);
-      verify(() => mockCollection.doc(any())).called(1);
-
-      verify(() => mockDocument.delete()).called(1);
+      verifyNever(() => fireStoreMock.collection(any()));
+      verifyNever(() => mockCollection.doc(any()));
+      verifyNever(() => mockDatabaseOffline.save(any(), any()));
+      verifyNever(() => mockDocument.delete());
       verify(() => localStorageMock.remove(any())).called(1);
     });
   });
 
   test(
-      'Given  invalid requisition,whem deleteAcvitedReuest is executed ,it should remove request on firebase and localStorage and return true',
-      () async {
-    when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
-    when(() => mockCollection.doc(any())).thenReturn(mockDocument);
-    when(() => mockDocument.delete()).thenAnswer((_) => Future<void>.value());
-    when(() => localStorageMock.remove(any())).thenAnswer((_) async => true);
-
-    final result = await requisitionReposiory.deleteAcvitedRequest(requisicao);
-
-    expect(result, isTrue);
-    verify(() => fireStoreMock.collection(any())).called(1);
-    verify(() => mockCollection.doc(any())).called(1);
-
-    verify(() => mockDocument.delete()).called(1);
-    verify(() => localStorageMock.remove(any())).called(1);
-  });
-  test(
       'Given a invalid requisition ,whem deleteAcvitedReuest is executed ,it should throw a RequestException',
       () async {
+    when(() => localStorageMock.remove(any())).thenAnswer((_) async => true);    
     when(() => fireStoreMock.collection(any())).thenReturn(mockCollection);
     when(() => mockCollection.doc(any())).thenReturn(mockDocument);
     when(() => mockDocument.delete())
-        .thenThrow(FirebaseException(plugin: "plugin"));
+        .thenThrow(FirebaseException(plugin: "plugin"));  
 
     expect(
         () async => await requisitionReposiory.deleteAcvitedRequest(requisicao),
         throwsA(isA<RequestException>()));
-    verifyNever(() => localStorageMock.remove(any()));
+    verify(() => localStorageMock.remove(any())).called(1);
 
     //  falta para fazer --- teste firebaseExceptions,disposer da lista de corridas ativas no app motorista
     //  feito teste para delete requistiom e deleteAcvitedReuest

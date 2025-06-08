@@ -18,7 +18,7 @@ class AddressRepositoryImpl  implements IAddressRepository {
   @override
   Future<List<Address>> getAddrss()async{
       try {
-        final result  = await _database.getUserData('address');
+        final result  = await _database.findAllData('address');
         final addres =result.map((element) => Address.fromMap(element)).toList(); 
         return  addres;
       }on DatabaseException catch (e,s) {

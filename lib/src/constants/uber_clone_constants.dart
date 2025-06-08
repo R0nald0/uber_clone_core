@@ -9,6 +9,8 @@
   static const KEY_PREFERENCE_USER = 'USER';
   static const KEY_PREFERENCE_REQUISITION_ACTIVE = 'REQUISITION_ACTIVE';
 
+  static const databasOfflineTableRequest = 'request';
+  static const databasOfflineTableAdress = 'address';
   static const USUARiO_DATABASE_NAME = 'usuario';
 
   static const REQUISITION_FIRESTORE_DATABASE_NAME = 'requisicao';

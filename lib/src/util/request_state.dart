@@ -11,7 +11,7 @@ enum RequestState {
   final String value;
   const RequestState({required this.name,required this.value});
 
- RequestState findByName(String status){
+ static RequestState findByName(String status){
      return switch(status){
         'nao_chamado' => RequestState.nao_chamado,
         'aguardando' => RequestState.aguardando,

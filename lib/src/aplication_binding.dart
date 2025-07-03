@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_getit/flutter_getit.dart';
 import 'package:uber_clone_core/src/core/local_storage/impl/local_storage_impl.dart';
 import 'package:uber_clone_core/src/core/logger/impl/app_uber_log_impl.dart';
+import 'package:uber_clone_core/src/core/module/payment_controller.dart';
 import 'package:uber_clone_core/src/core/offline_database/database_off_line.dart';
 import 'package:uber_clone_core/src/core/offline_database/impl/database_impl.dart';
+import 'package:uber_clone_core/src/core/restclient/impl/stripe_rest_client.dart';
+import 'package:uber_clone_core/src/core/restclient/uber_clone_rest_client.dart';
 import 'package:uber_clone_core/src/repository/addres_reposiory/I_address_repository.dart';
 import 'package:uber_clone_core/src/repository/addres_reposiory/address_repository_impl.dart';
 import 'package:uber_clone_core/src/repository/auth_repository/I_auth_repository.dart';
@@ -32,8 +35,9 @@ class AplicationBinding extends ApplicationBindings {
         Bind.lazySingleton<IAppUberLog>((i) => AppUberLogImpl()),
         Bind.lazySingleton<LocalStorage>((i) => LocalStorageImpl()),
         Bind.lazySingleton((i) => FirebaseFirestore.instance),
+        Bind.lazySingleton<UberCloneRestClient>((i) => StripeRestClient()),
         Bind.lazySingleton<IPaymentsRepository>(
-            (i) => PaymentsTypesRepositoryImpl(firestore: i())),
+            (i) => PaymentsTypesRepositoryImpl(firestore: i(),restclient: i())),
         Bind.lazySingleton(
             (i) => FirebaseNotfication()),
         Bind.lazySingleton<IPaymentService>(
@@ -72,6 +76,8 @@ class AplicationBinding extends ApplicationBindings {
             userRepository: i())),
         Bind.lazySingleton<IAddresService>(
           (i) => AddresService(addressRepository: i()),
-        )
+        ),
+        
+        Bind.lazySingleton((i)=>PaymentController(paymentService: i()))
       ];
 }

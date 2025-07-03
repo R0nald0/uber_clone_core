@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uber_clone_core/src/core/widgets/payment_page.dart';
 
 mixin DialogLoader<e extends StatefulWidget> on State<e> {
   var isLoading = false;
@@ -136,5 +137,24 @@ mixin DialogLoader<e extends StatefulWidget> on State<e> {
             ],
           );
         },);
+  }
+
+  void showPaymentBottomSheet(
+    BuildContext context,
+    String paymentType,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      isDismissible: true,
+      elevation: 10,
+      isScrollControlled: true,
+      scrollControlDisabledMaxHeightRatio: 2700,
+      showDragHandle: true,
+      enableDrag: true,
+      builder: (context) {
+        return PaymentPage(paymentType: paymentType,);
+      },
+    );
   }
 }

@@ -46,9 +46,13 @@ export 'src/core/location/location_controller.dart';
 export 'src/util/request_state.dart';
 export 'src/core/extension/extension_date.dart';
 export 'src/core/extension/extension_string.dart';
+export 'src/core/types_payment.dart';
 
 
+export 'src/core/widgets/payment_page.dart';
 
+ 
+ 
 export 'src/uber_clone_core_config.dart';
 
 export 'src/config_Initialization/app_config_initialization.dart';

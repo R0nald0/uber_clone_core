@@ -32,7 +32,9 @@ dependencies:
   mobx: ^2.4.0
   firebase_messaging: ^15.2.5
   decimal: ^3.2.1
+  flutter_stripe: ^11.5.0
   flutter_local_notifications: ^19.1.0
+  dio: ^5.8.0+1
 
 
 dev_dependencies:

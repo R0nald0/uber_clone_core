@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:uber_clone_core/src/services/notification_service/impl/service_notification_impl.dart';
 
@@ -9,8 +10,14 @@ class AppConfigInitialization {
 
     WidgetsFlutterBinding.ensureInitialized();
     await _configFirebase();
-    await initializeDateFormatting('pt_BR', null); 
-    }
+    await initializeDateFormatting('pt_BR', null);
+   // await initStripe();
+    
+   }
+}
+
+Future<void> initStripe()async{
+   Stripe.publishableKey =const String.fromEnvironment("PUBLISHED_KEY");
 }
 
 

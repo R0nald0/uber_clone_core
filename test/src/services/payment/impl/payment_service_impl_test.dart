@@ -37,7 +37,7 @@ void main() {
   });
   
   group('test start payment', (){
-    
+    final ObjetcToUse(:addressTest,:fakeWeatherResponse,:usuario2) = ObjetcToUse();
     test('startPaymentTrip,should make the payment for the trip and return true ', () async{
         
        when(() => mockRepositoryUserRepository.getDataUserOn(any())).thenAnswer((_) async => usuario2);

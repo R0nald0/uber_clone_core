@@ -5,10 +5,10 @@ import 'package:uber_clone_core/src/core/exceptions/uber_rest_client_exception.d
 import 'package:uber_clone_core/src/core/restclient/uber_clone_response.dart';
 import 'package:uber_clone_core/src/core/restclient/uber_clone_rest_client.dart';
 
-class StripeRestClientImpl implements UberCloneRestClient {
+class IaRestClientImpl implements UberCloneRestClient {
   late Dio _dio;
 
-  StripeRestClientImpl() {
+  IaRestClientImpl() {
     _dio = Dio(BaseOptions(
         baseUrl: const String.fromEnvironment('LOCAL_BASE_URL'),
         connectTimeout: const Duration(seconds: 10),

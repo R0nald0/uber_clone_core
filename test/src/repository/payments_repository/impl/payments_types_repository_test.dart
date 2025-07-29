@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:uber_clone_core/src/core/exceptions/payment_type_not_found.dart';
 import 'package:uber_clone_core/src/core/exceptions/repository_exception.dart';
+import 'package:uber_clone_core/src/core/restclient/impl/stripe_rest_client.dart';
+import 'package:uber_clone_core/src/core/restclient/uber_clone_rest_client.dart';
 import 'package:uber_clone_core/src/model/payment_type.dart';
 import 'package:uber_clone_core/src/repository/payments_repository/impl/payments_types_repository.dart';
  
@@ -14,6 +16,7 @@ class MockLocalfireStore extends Mock implements FirebaseFirestore {}
  class MockDocumentSnapshot extends Mock implements DocumentSnapshot<Map<String, dynamic>>{}
 
  class MockQuerySnapshot extends Mock implements QuerySnapshot<Map<String, dynamic>>{}
+ class MockRestClient extends Mock implements StripeRestClientImpl{}
  class MockQueryDocumentSnapshot extends Mock implements QueryDocumentSnapshot<Map<String, dynamic>>{}
 
 void main() {
@@ -24,6 +27,7 @@ void main() {
     late  MockQuerySnapshot mockQuerySnapshot ; 
     late  MockQueryDocumentSnapshot mockQueryDocumentSnapshot ; 
     late  MockLocalfireStore mockFireStore ; 
+    late  MockRestClient mockStripeRestClient ;
     late  PaymentsTypesRepositoryImpl paymentsRepository; 
    setUp((){
       mockQuerySnapshot =MockQuerySnapshot();
@@ -32,7 +36,9 @@ void main() {
       mockQueryDocumentSnapshot =MockQueryDocumentSnapshot();
       mockFireStore = MockLocalfireStore();
       mockCollection = MockCollection();
-      paymentsRepository = PaymentsTypesRepositoryImpl(firestore: mockFireStore);   
+      mockStripeRestClient = MockRestClient();
+
+      paymentsRepository = PaymentsTypesRepositoryImpl(firestore: mockFireStore,restclient: mockStripeRestClient );   
    }); 
   
 

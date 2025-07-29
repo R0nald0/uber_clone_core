@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,7 +27,7 @@ class LocationRepositoryImpl implements ILocationRepository {
     return Address(
         bairro: placeMark.subLocality ?? '',
         cep: placeMark.postalCode ?? '',
-        cidade: placeMark.subLocality ?? '',
+        cidade: placeMark.subAdministrativeArea ?? '',
         latitude: latitude,
         longitude: longitude,
         nomeDestino:

@@ -12,6 +12,7 @@ export 'src/core/exceptions/requisicao_exception.dart';
 export 'src/core/exceptions/user_exception.dart';
 export 'src/core/exceptions/user_not_found.dart';
 export 'src/core/exceptions/request_not_found.dart';
+export 'src/core/exceptions/service_exception.dart';
 
 export 'src/core/widgets/uber_text_fields/uber_auto_completer_text_field.dart';
 export 'src/core/widgets/uber_text_fields/uber_text_field_widget.dart';
@@ -28,6 +29,7 @@ export 'src/services/adress_service/i_addres_service.dart';
 export 'src/services/mapsCameraService/maps_camera_service.dart';
 export 'src/services/payment/i_payment_service.dart';
 export 'src/services/notification_service/impl/firebase_notfication.dart';
+export 'src/services/ia_service/ia_service.dart';
 
 export 'src/model/Requisicao.dart';
 export 'src/model/Marcador.dart';
@@ -39,6 +41,8 @@ export 'src/model/trip.dart';
 export 'src/model/tipo_viagem.dart';
 export 'src/model/uber_messager.dart';
 export 'src/model/payment_type.dart';
+export 'src/model/messages_response_suggestion.dart';
+export 'src/model/messages.dart';
 
 export 'src/core/logger/i_app_uber_log.dart';
 export 'src/core/location/location_controller.dart';

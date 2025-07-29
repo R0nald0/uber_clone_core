@@ -4,18 +4,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:uber_clone_core/src/core/exceptions/uber_rest_client_exception.dart';
+import 'package:uber_clone_core/src/core/restclient/impl/stripe_rest_client.dart';
 import 'package:uber_clone_core/src/core/restclient/uber_clone_response.dart';
-import 'package:uber_clone_core/src/core/restclient/uber_clone_rest_client.dart';
 import 'package:uber_clone_core/src/repository/payments_repository/i_payments_repository.dart';
 import 'package:uber_clone_core/uber_clone_core.dart';
 
 class PaymentsTypesRepositoryImpl implements IPaymentsRepository {
   final FirebaseFirestore _firestore;
-  final UberCloneRestClient _restClient;
+  final StripeRestClientImpl _restClient;
 
   PaymentsTypesRepositoryImpl(
       {required FirebaseFirestore firestore,
-      required UberCloneRestClient restclient})
+      required StripeRestClientImpl restclient})
       : _firestore = firestore,
         _restClient = restclient;
 
@@ -67,7 +67,7 @@ class PaymentsTypesRepositoryImpl implements IPaymentsRepository {
     
      t;
       final UberCloneResponse(:data) = await _restClient.unAuth().post(
-          'create-payment-intent',
+          '/payments/create-payment-intent',
           data: {'amount': t, 'currency': 'brl'});
       final clientSecrete = data['clientSecret'];
     
@@ -120,7 +120,7 @@ class PaymentsTypesRepositoryImpl implements IPaymentsRepository {
   @override
   Future<String> findAll() async{
       try {
-      final UberCloneResponse(:data) = await _restClient.unAuth().get('all');
+      final UberCloneResponse(:data) = await _restClient.unAuth().get('/payments/all');
       final clientSecrete = data;
     
       return clientSecrete;

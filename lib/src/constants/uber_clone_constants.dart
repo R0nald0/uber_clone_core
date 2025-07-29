@@ -21,6 +21,7 @@
   static const TIPO_USUARIO_PASSAGEIRO="passageiro";
   static const TIPO_USUARIO_MOTORISTA="motorista";
   static const LOTTI_ASSET_FIND_DRIVER="assets/images/animations/find_driver.json";
+  static const LOTTI_ASSET_IA_ANIMATION="assets/images/animations/ia_v1.json";
   static const ASSEESTS_IMAGE_LOGO="assets/images/logo.png";
   static const ASSEESTS_IMAGE="assets/images";
 
